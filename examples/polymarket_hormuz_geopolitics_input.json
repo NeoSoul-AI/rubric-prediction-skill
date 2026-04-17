@@ -1,0 +1,111 @@
+{
+  "question": "Will Strait of Hormuz traffic return to normal by April 30, 2026?",
+  "options": [
+    "Returns to normal by Apr 30",
+    "Does not return to normal by Apr 30"
+  ],
+  "resolution_rule": "Resolve Yes if IMF PortWatch's 7-day moving average for total ships transiting the Strait of Hormuz reaches at least 60 on April 30, 2026. Otherwise resolve No.",
+  "rubric_dimensions": [
+    {
+      "key": "market-conviction",
+      "label": "Market conviction",
+      "weight": 0.28,
+      "why_it_matters": "High volume with prices near 50/50 reflects genuine market disagreement and should be treated as a first-order signal."
+    },
+    {
+      "key": "recovery-momentum",
+      "label": "Recovery momentum",
+      "weight": 0.30,
+      "why_it_matters": "This is a short-window recovery question; whether recent ship traffic keeps improving is central to normalization by month-end."
+    },
+    {
+      "key": "deescalation-durability",
+      "label": "De-escalation durability",
+      "weight": 0.22,
+      "why_it_matters": "If ceasefires and talks only hold briefly, the recovery trend can easily stall again."
+    },
+    {
+      "key": "threshold-feasibility",
+      "label": "Threshold feasibility",
+      "weight": 0.20,
+      "why_it_matters": "The question is not merely whether things improve but whether a clear threshold is met by the deadline, so reachability of the bar must be assessed on its own."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "e1",
+      "claim": "Polymarket event page currently implies roughly a 53.5% chance of traffic returning to normal and around $4.4M traded, showing a liquid but still divided market with a slight lean toward recovery.",
+      "source": "https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-april-30",
+      "supports_option": "Returns to normal by Apr 30",
+      "stance": "for",
+      "strength": "medium",
+      "dimension_scores": {
+        "market-conviction": 0.86,
+        "recovery-momentum": 0.56,
+        "deescalation-durability": 0.48,
+        "threshold-feasibility": 0.52
+      },
+      "dependency_group": "hormuz-market-core"
+    },
+    {
+      "id": "e2",
+      "claim": "Recent upticks to 20 ships in the last 24 hours and multi-week weekend highs, together with a conditional two-week U.S.-Iran ceasefire launched April 7, indicate near-term recovery momentum.",
+      "source": "https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-april-30",
+      "supports_option": "Returns to normal by Apr 30",
+      "stance": "for",
+      "strength": "strong",
+      "dimension_scores": {
+        "market-conviction": 0.58,
+        "recovery-momentum": 0.88,
+        "deescalation-durability": 0.68,
+        "threshold-feasibility": 0.62
+      },
+      "dependency_group": "hormuz-recovery-signal"
+    },
+    {
+      "id": "e3",
+      "claim": "Despite the rebound, throughput remains only 14.6% of normal, war-risk insurance is still about 16x normal, and Brent crude is near $122, all of which point to a still-fragile operating environment.",
+      "source": "https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-april-30",
+      "supports_option": "Does not return to normal by Apr 30",
+      "stance": "for",
+      "strength": "strong",
+      "dimension_scores": {
+        "market-conviction": 0.54,
+        "recovery-momentum": 0.34,
+        "deescalation-durability": 0.86,
+        "threshold-feasibility": 0.90
+      },
+      "dependency_group": "hormuz-fragility"
+    },
+    {
+      "id": "e4",
+      "claim": "U.S.-Iran talks are set to start April 10 and the current ceasefire window extends for roughly two weeks, leaving a non-trivial path for sentiment and shipping patterns to improve before month-end.",
+      "source": "https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-april-30",
+      "supports_option": "Returns to normal by Apr 30",
+      "stance": "for",
+      "strength": "medium",
+      "dimension_scores": {
+        "market-conviction": 0.46,
+        "recovery-momentum": 0.62,
+        "deescalation-durability": 0.74,
+        "threshold-feasibility": 0.58
+      },
+      "dependency_group": "hormuz-diplomacy"
+    },
+    {
+      "id": "e5",
+      "claim": "The market resolves on a strict 7-day moving average threshold of at least 60 ships on April 30, and current traffic is still far below that benchmark, making full normalization a high bar even if conditions improve.",
+      "source": "https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-april-30",
+      "supports_option": "Does not return to normal by Apr 30",
+      "stance": "for",
+      "strength": "strong",
+      "dimension_scores": {
+        "market-conviction": 0.48,
+        "recovery-momentum": 0.30,
+        "deescalation-durability": 0.72,
+        "threshold-feasibility": 0.94
+      },
+      "dependency_group": "hormuz-threshold"
+    }
+  ]
+}

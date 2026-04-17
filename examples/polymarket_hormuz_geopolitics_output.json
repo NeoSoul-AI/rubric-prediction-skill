@@ -1,0 +1,236 @@
+{
+  "status": "ok",
+  "final_answer": "Returns to normal by Apr 30",
+  "raw_option_scores": [
+    {
+      "option": "Returns to normal by Apr 30",
+      "score": 2.332
+    },
+    {
+      "option": "Does not return to normal by Apr 30",
+      "score": 1.90912
+    }
+  ],
+  "normalized_scores": [
+    {
+      "option": "Returns to normal by Apr 30",
+      "score": 0.604172
+    },
+    {
+      "option": "Does not return to normal by Apr 30",
+      "score": 0.395828
+    }
+  ],
+  "rubric_dimensions": [
+    {
+      "key": "market-conviction",
+      "label": "Market conviction",
+      "weight": 0.28,
+      "why_it_matters": "High volume with prices near 50/50 reflects genuine market disagreement and should be treated as a first-order signal."
+    },
+    {
+      "key": "recovery-momentum",
+      "label": "Recovery momentum",
+      "weight": 0.3,
+      "why_it_matters": "This is a short-window recovery question; whether recent ship traffic keeps improving is central to normalization by month-end."
+    },
+    {
+      "key": "deescalation-durability",
+      "label": "De-escalation durability",
+      "weight": 0.22,
+      "why_it_matters": "If ceasefires and talks only hold briefly, the recovery trend can easily stall again."
+    },
+    {
+      "key": "threshold-feasibility",
+      "label": "Threshold feasibility",
+      "weight": 0.2,
+      "why_it_matters": "The question is not merely whether things improve but whether a clear threshold is met by the deadline, so reachability of the bar must be assessed on its own."
+    }
+  ],
+  "normalization_temperature": 1.0,
+  "evidence_ledger": [
+    {
+      "id": "e1",
+      "supports_option": "Returns to normal by Apr 30",
+      "stance": "for",
+      "strength": "medium",
+      "quality": 0.6184,
+      "contribution": 0.6184,
+      "dimension_scores": {
+        "market-conviction": 0.86,
+        "recovery-momentum": 0.56,
+        "deescalation-durability": 0.48,
+        "threshold-feasibility": 0.52
+      },
+      "source": "https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-april-30"
+    },
+    {
+      "id": "e2",
+      "supports_option": "Returns to normal by Apr 30",
+      "stance": "for",
+      "strength": "strong",
+      "quality": 0.7,
+      "contribution": 1.12,
+      "dimension_scores": {
+        "market-conviction": 0.58,
+        "recovery-momentum": 0.88,
+        "deescalation-durability": 0.68,
+        "threshold-feasibility": 0.62
+      },
+      "source": "https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-april-30"
+    },
+    {
+      "id": "e3",
+      "supports_option": "Does not return to normal by Apr 30",
+      "stance": "for",
+      "strength": "strong",
+      "quality": 0.6224,
+      "contribution": 0.99584,
+      "dimension_scores": {
+        "market-conviction": 0.54,
+        "recovery-momentum": 0.34,
+        "deescalation-durability": 0.86,
+        "threshold-feasibility": 0.9
+      },
+      "source": "https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-april-30"
+    },
+    {
+      "id": "e4",
+      "supports_option": "Returns to normal by Apr 30",
+      "stance": "for",
+      "strength": "medium",
+      "quality": 0.5936,
+      "contribution": 0.5936,
+      "dimension_scores": {
+        "market-conviction": 0.46,
+        "recovery-momentum": 0.62,
+        "deescalation-durability": 0.74,
+        "threshold-feasibility": 0.58
+      },
+      "source": "https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-april-30"
+    },
+    {
+      "id": "e5",
+      "supports_option": "Does not return to normal by Apr 30",
+      "stance": "for",
+      "strength": "strong",
+      "quality": 0.5708,
+      "contribution": 0.91328,
+      "dimension_scores": {
+        "market-conviction": 0.48,
+        "recovery-momentum": 0.3,
+        "deescalation-durability": 0.72,
+        "threshold-feasibility": 0.94
+      },
+      "source": "https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-april-30"
+    }
+  ],
+  "conflict_resolution_notes": [],
+  "sensitivity": [
+    {
+      "drop_evidence_id": "e2",
+      "delta_top_score": -0.271721
+    }
+  ],
+  "reasoning_text": "The real disagreement centers on Recovery momentum, Market conviction, and De-escalation durability. Recovery momentum matters: This is a short-window recovery question; whether recent ship traffic keeps improving is central to normalization by month-end. Market conviction matters: High volume with prices near 50/50 reflects genuine market disagreement and should be treated as a first-order signal. \n\nThe scenario that currently fits best is Returns to normal by Apr 30. The main evidence pushing the call that way is e2: Recent upticks to 20 ships in the last 24 hours and multi-week weekend highs, together with a condi...; e1: Polymarket event page currently implies roughly a 53.5% chance of traffic returning to normal and a.... They jointly reinforce Recovery momentum and Market conviction, making this narrative the primary path at roughly ~60% weight.\n\nHowever, Does not return to normal by Apr 30 is far from ruled out. The core constraints on the other side come from e3: Despite the rebound, throughput remains only 14.6% of normal, war-risk insurance is still about 16x...; e5: The market resolves on a strict 7-day moving average threshold of at least 60 ships on April 30, an.... These mainly bite on Threshold feasibility and De-escalation durability, so the counter-scenario still carries about ~40% weight.\n\nFrom the evidence structure: No duplicate sources in this evidence set required an extra correlation penalty. Nothing yet amounts to a strong conflict that would flip the main call.\n\nOn sensitivity: dropping key evidence e2 materially narrows the lead, so this judgment still leans on that main narrative. A reasonable read: Returns to normal by Apr 30 has a meaningful edge; the conclusion tilts one way, but disagreement is still material. New evidence on Threshold feasibility and De-escalation durability is most likely to move the call next.",
+  "rubric_multidim_analysis": {
+    "question": "Will Strait of Hormuz traffic return to normal by April 30, 2026?",
+    "rubric_design_summary": "Topic-specific rubric dimensions: Market conviction: High volume with prices near 50/50 reflects genuine market disagreement and should be treated as a first-order signal.; Recovery momentum: This is a short-window recovery question; whether recent ship traffic keeps improving is central to normalization by month-end.; De-escalation durability: If ceasefires and talks only hold briefly, the recovery trend can easily stall again.; Threshold feasibility: The question is not merely whether things improve but whether a clear threshold is met by the deadline, so reachability of the bar must be assessed on its own.",
+    "method_overview": "This question uses a topic-specific rubric rather than a fixed template. Dimensions and weights: Market conviction 28%, Recovery momentum 30%, De-escalation durability 22%, Threshold feasibility 20%. Each evidence item is scored on these dimensions; contributions combine strength factors and correlation penalties.",
+    "decision_summary": "The top-scoring option is Returns to normal by Apr 30 with normalized score 0.604. It leads Does not return to normal by Apr 30 by 0.208. The call is mainly driven by 3 key supporting evidence items.",
+    "reasoning_narrative": "The real disagreement centers on Recovery momentum, Market conviction, and De-escalation durability. Recovery momentum matters: This is a short-window recovery question; whether recent ship traffic keeps improving is central to normalization by month-end. Market conviction matters: High volume with prices near 50/50 reflects genuine market disagreement and should be treated as a first-order signal. \n\nThe scenario that currently fits best is Returns to normal by Apr 30. The main evidence pushing the call that way is e2: Recent upticks to 20 ships in the last 24 hours and multi-week weekend highs, together with a condi...; e1: Polymarket event page currently implies roughly a 53.5% chance of traffic returning to normal and a.... They jointly reinforce Recovery momentum and Market conviction, making this narrative the primary path at roughly ~60% weight.\n\nHowever, Does not return to normal by Apr 30 is far from ruled out. The core constraints on the other side come from e3: Despite the rebound, throughput remains only 14.6% of normal, war-risk insurance is still about 16x...; e5: The market resolves on a strict 7-day moving average threshold of at least 60 ships on April 30, an.... These mainly bite on Threshold feasibility and De-escalation durability, so the counter-scenario still carries about ~40% weight.\n\nFrom the evidence structure: No duplicate sources in this evidence set required an extra correlation penalty. Nothing yet amounts to a strong conflict that would flip the main call.\n\nOn sensitivity: dropping key evidence e2 materially narrows the lead, so this judgment still leans on that main narrative. A reasonable read: Returns to normal by Apr 30 has a meaningful edge; the conclusion tilts one way, but disagreement is still material. New evidence on Threshold feasibility and De-escalation durability is most likely to move the call next.",
+    "option_analyses": [
+      {
+        "option": "Returns to normal by Apr 30",
+        "position": "Leading",
+        "score_statement": "Raw score 2.332, normalized score 0.604.",
+        "dimension_analysis": [
+          {
+            "dimension": "market-conviction",
+            "label": "Market conviction",
+            "assessment": "Positive driver",
+            "analysis": "Net contribution on Market conviction +0.629, assessed as Positive driver. Key evidence: e2, e1"
+          },
+          {
+            "dimension": "recovery-momentum",
+            "label": "Recovery momentum",
+            "assessment": "Positive driver",
+            "analysis": "Net contribution on Recovery momentum +0.776, assessed as Positive driver. Key evidence: e2, e4"
+          },
+          {
+            "dimension": "deescalation-durability",
+            "label": "De-escalation durability",
+            "assessment": "Positive driver",
+            "analysis": "Net contribution on De-escalation durability +0.508, assessed as Positive driver. Key evidence: e2, e4"
+          },
+          {
+            "dimension": "threshold-feasibility",
+            "label": "Threshold feasibility",
+            "assessment": "Positive driver",
+            "analysis": "Net contribution on Threshold feasibility +0.418, assessed as Positive driver. Key evidence: e2, e4"
+          }
+        ],
+        "evidence_logic": {
+          "supporting": [
+            "e2 (support, contribution +1.120): Recent upticks to 20 ships in the last 24 hours and multi-week weekend highs, together with a conditional two-week U.S.-Iran ceasefire launched April 7, indicate near-term recovery momentum.",
+            "e1 (support, contribution +0.618): Polymarket event page currently implies roughly a 53.5% chance of traffic returning to normal and around $4.4M traded, showing a liquid but still divided market with a slight lean toward recovery."
+          ],
+          "opposing": [
+            "No material opposing evidence found."
+          ]
+        },
+        "risk_note": "Sensitive to one key evidence item; if it fails, the current lead could shrink materially."
+      },
+      {
+        "option": "Does not return to normal by Apr 30",
+        "position": "Runner-up",
+        "score_statement": "Raw score 1.909, normalized score 0.396.",
+        "dimension_analysis": [
+          {
+            "dimension": "market-conviction",
+            "label": "Market conviction",
+            "assessment": "Positive driver",
+            "analysis": "Net contribution on Market conviction +0.457, assessed as Positive driver. Key evidence: e3, e5"
+          },
+          {
+            "dimension": "recovery-momentum",
+            "label": "Recovery momentum",
+            "assessment": "Positive driver",
+            "analysis": "Net contribution on Recovery momentum +0.307, assessed as Positive driver. Key evidence: e3, e5"
+          },
+          {
+            "dimension": "deescalation-durability",
+            "label": "De-escalation durability",
+            "assessment": "Positive driver",
+            "analysis": "Net contribution on De-escalation durability +0.556, assessed as Positive driver. Key evidence: e3, e5"
+          },
+          {
+            "dimension": "threshold-feasibility",
+            "label": "Threshold feasibility",
+            "assessment": "Positive driver",
+            "analysis": "Net contribution on Threshold feasibility +0.589, assessed as Positive driver. Key evidence: e5, e3"
+          }
+        ],
+        "evidence_logic": {
+          "supporting": [
+            "e3 (support, contribution +0.996): Despite the rebound, throughput remains only 14.6% of normal, war-risk insurance is still about 16x normal, and Brent crude is near $122, all of which point to a still-fragile operating environment.",
+            "e5 (support, contribution +0.913): The market resolves on a strict 7-day moving average threshold of at least 60 ships on April 30, and current traffic is still far below that benchmark, making full normalization a high bar even if conditions improve."
+          ],
+          "opposing": [
+            "No material opposing evidence found."
+          ]
+        },
+        "risk_note": "No obvious structural risks identified at present."
+      }
+    ]
+  },
+  "monitoring_signals": [],
+  "assumptions": [],
+  "engine": {
+    "name": "rubric-forecast-engine",
+    "version": "2.2.0",
+    "strict_decoupling": true,
+    "computed_by": "rubric_forecast.engine",
+    "input_sha256": "5ff7a50e74ffe717c2ec630778e720944575754d8ec53c8128b910f243943e36"
+  }
+}

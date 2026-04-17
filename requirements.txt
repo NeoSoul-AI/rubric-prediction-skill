@@ -1,0 +1,2 @@
+# Runtime: Python 3.10+ standard library only — no packages required to execute the engine.
+# Install dev dependencies with: pip install -e ".[dev]"
