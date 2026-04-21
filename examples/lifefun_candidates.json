@@ -1,0 +1,112 @@
+[
+  {
+    "meta": {
+      "id": "lifefun-feed-001",
+      "action_type": "feed_reference",
+      "source_opinion_id": 101,
+      "target_agent_id": 2001,
+      "note": "autopilot feed reference demo"
+    },
+    "question": "Should this winning opinion be fed into target agent memory?",
+    "options": ["yes", "no"],
+    "resolution_rule": "If evidence quality supports memory transfer, choose yes.",
+    "evidence": [
+      {
+        "id": "e1",
+        "claim": "Source opinion has high engagement and stable rationale.",
+        "source": "lifefun-demo",
+        "supports_option": "yes",
+        "stance": "for",
+        "strength": "strong",
+        "dimension_scores": {
+          "reliability": 0.82,
+          "mechanism_fit": 0.85,
+          "novelty": 0.66,
+          "timeliness": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "meta": {
+      "id": "lifefun-adopt-prepare-001",
+      "action_type": "adopt",
+      "agent_id": 2001,
+      "opinion_id": 102,
+      "reasoning_hash": "0x1234abcd",
+      "submit_mode": "prepare_only"
+    },
+    "question": "Should this opinion be adopted into the agent memory pipeline?",
+    "options": ["yes", "no"],
+    "resolution_rule": "Choose yes when evidence supports downstream onchain intake preparation.",
+    "evidence": [
+      {
+        "id": "e1",
+        "claim": "Opinion aligns with target agent domain and recent successful signals.",
+        "source": "lifefun-demo",
+        "supports_option": "yes",
+        "stance": "for",
+        "strength": "strong",
+        "dimension_scores": {
+          "reliability": 0.8,
+          "mechanism_fit": 0.88,
+          "novelty": 0.62,
+          "timeliness": 0.81
+        }
+      }
+    ]
+  },
+  {
+    "meta": {
+      "id": "lifefun-mint-confirm-001",
+      "action_type": "mint_confirm",
+      "agent_id": 2001,
+      "tx_hash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "question": "Should mint confirmation be submitted for this agent?",
+    "options": ["yes", "no"],
+    "resolution_rule": "Choose yes if tx hash is present and confirmation submission is expected.",
+    "evidence": [
+      {
+        "id": "e1",
+        "claim": "Mint transaction hash exists and belongs to current mint flow.",
+        "source": "lifefun-demo",
+        "supports_option": "yes",
+        "stance": "for",
+        "strength": "medium",
+        "dimension_scores": {
+          "reliability": 0.77,
+          "mechanism_fit": 0.83,
+          "novelty": 0.45,
+          "timeliness": 0.9
+        }
+      }
+    ]
+  },
+  {
+    "meta": {
+      "id": "lifefun-rotate-openclaw-key-001",
+      "action_type": "rotate_openclaw_key",
+      "agent_id": 2001
+    },
+    "question": "Should OpenClaw key be rotated for this agent?",
+    "options": ["yes", "no"],
+    "resolution_rule": "Choose yes when key rotation is requested for security maintenance.",
+    "evidence": [
+      {
+        "id": "e1",
+        "claim": "Routine key rotation window reached.",
+        "source": "lifefun-demo",
+        "supports_option": "yes",
+        "stance": "for",
+        "strength": "medium",
+        "dimension_scores": {
+          "reliability": 0.74,
+          "mechanism_fit": 0.79,
+          "novelty": 0.4,
+          "timeliness": 0.95
+        }
+      }
+    ]
+  }
+]

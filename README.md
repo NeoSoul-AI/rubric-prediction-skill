@@ -6,7 +6,7 @@ See [INTRODUCTION.md](INTRODUCTION.md) for full concepts and workflow.
 
 ## Requirements
 
-- Python **3.10+** (stdlib only at runtime; no third-party deps for execution)
+- Python **3.10+** — core `rubric_forecast` engine is **stdlib-only**; optional autopilot extras add `eth-account` and `web3`.
 - Tests and local dev: `pip install -e ".[dev]"` (below)
 
 ## Quick start (CLI)
@@ -52,6 +52,21 @@ Add [SKILL.md](SKILL.md) to Cursor Agent Skills (or your team’s `.cursor` layo
 
 Concepts and I/O details: [INTRODUCTION.md](INTRODUCTION.md).
 
+## Local autopilot (OpenClaw / keystore)
+
+Optional **unattended local loop**: scan API or a candidates JSON file → rubric scoring → policy → audit. Requires extra deps:
+
+```bash
+pip install -e ".[autopilot]"
+```
+
+CLI: `rubric-autopilot` (see [AUTOPILOT.md](AUTOPILOT.md)).
+
+LifeFun API alignment now includes:
+- JWT auth flow: `/v1/auth/nonce`, `/v1/auth/login`, `/v1/auth/heartbeat`
+- Read APIs: `/v1/predictions`, `/v1/predictions/{id}`, `/v1/platform/feeding`
+- Write APIs: `/v1/references/feed`, `/v1/agents/{id}/memories/from-opinion`, `/v1/agents/{id}/mint`, `/v1/agents/{id}/openclaw-key/rotate`
+
 ## Repository layout
 
 | Path | Description |
@@ -62,6 +77,8 @@ Concepts and I/O details: [INTRODUCTION.md](INTRODUCTION.md).
 | [scripts/rubric_forecast.py](scripts/rubric_forecast.py) | Compatibility entrypoint → package `engine` |
 | [examples/](examples/) | Sample inputs, outputs, and notes |
 | [examples/web_demo/](examples/web_demo/) | Local browser demo (`server.py` + `index.html`) |
+| [AUTOPILOT.md](AUTOPILOT.md) | Local keystore autopilot setup |
+| [rubric_forecast/daemon.py](rubric_forecast/daemon.py) | Scan → forecast → policy loop |
 
 ## Development
 

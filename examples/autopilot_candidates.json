@@ -1,0 +1,24 @@
+[
+  {
+    "meta": { "id": "demo-1" },
+    "question": "Will the demo resolve positively?",
+    "options": ["yes", "no"],
+    "resolution_rule": "Manual adjudication for local autopilot demo.",
+    "evidence": [
+      {
+        "id": "e1",
+        "claim": "Supporting signal A",
+        "source": "demo",
+        "supports_option": "yes",
+        "stance": "for",
+        "strength": "medium",
+        "dimension_scores": {
+          "reliability": 0.7,
+          "mechanism_fit": 0.6,
+          "novelty": 0.5,
+          "timeliness": 0.65
+        }
+      }
+    ]
+  }
+]
