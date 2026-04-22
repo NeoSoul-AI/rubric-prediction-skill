@@ -1,4 +1,4 @@
-"""HTTP client for OpenClaw / LifeFun APIs with JWT + OpenClaw auth."""
+"""HTTP client for LifeFun APIs with JWT auth."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ import urllib.request
 from dataclasses import dataclass
 from typing import Any, Dict, List, Literal, Optional
 
-AuthMode = Literal["none", "jwt", "openclaw"]
+AuthMode = Literal["none", "jwt"]
 
 
 @dataclass
@@ -33,13 +33,11 @@ class OpenClawAdapter:
     def __init__(
         self,
         base_url: Optional[str],
-        api_key: Optional[str] = None,
         jwt_token: Optional[str] = None,
         *,
         timeout_seconds: float = 30.0,
     ) -> None:
         self.base_url = (base_url or "").rstrip("/")
-        self.api_key = api_key
         self.jwt_token = jwt_token
         self.timeout_seconds = timeout_seconds
 
@@ -50,8 +48,6 @@ class OpenClawAdapter:
         h = {"Accept": "application/json", "Content-Type": "application/json"}
         if auth == "jwt" and self.jwt_token:
             h["Authorization"] = f"Bearer {self.jwt_token}"
-        if auth == "openclaw" and self.api_key:
-            h["Authorization"] = f"Bearer {self.api_key}"
         return h
 
     def _request(
@@ -64,11 +60,9 @@ class OpenClawAdapter:
         auth: AuthMode = "none",
     ) -> Any:
         if not self.base_url:
-            raise RuntimeError("OPENCLAW_BASE_URL / LIFEFUN_API_BASE_URL is not set")
+            raise RuntimeError("LIFEFUN_API_BASE_URL is not set")
         if auth == "jwt" and not self.jwt_token:
             raise RuntimeError("JWT auth requested but token is missing")
-        if auth == "openclaw" and not self.api_key:
-            raise RuntimeError("OpenClaw auth requested but API key is missing")
         url = f"{self.base_url}{path}"
         if params:
             q = urllib.parse.urlencode(
@@ -229,12 +223,6 @@ class OpenClawAdapter:
             body={},
             auth="jwt",
         )
-
-    # ---- OpenClaw key only ----
-    def openclaw_me(self) -> Any:
-        """GET /v1/openclaw/me with OpenClaw API key as Bearer."""
-        return self._request("GET", "/v1/openclaw/me", auth="openclaw")
-
 
 def predictions_to_candidate_payloads(raw: Any) -> List[Dict[str, Any]]:
     """

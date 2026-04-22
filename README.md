@@ -52,6 +52,8 @@ Add [SKILL.md](SKILL.md) to Cursor Agent Skills (or your team’s `.cursor` layo
 
 Concepts and I/O details: [INTRODUCTION.md](INTRODUCTION.md).
 
+For OpenClaw production automation, use `lifefun-frontend` as the execution orchestrator (`/api/autopilot/run`) and keep this repo as the forecasting skill/engine.
+
 ## Local autopilot (OpenClaw / keystore)
 
 Optional **unattended local loop**: scan API or a candidates JSON file → rubric scoring → policy → audit. Requires extra deps:

@@ -46,8 +46,7 @@ class AutopilotDaemon:
         self.phase = JobPhase.idle
         self._executor: Any = None
         self.adapter = OpenClawAdapter(
-            config.openclaw_base_url,
-            api_key=config.openclaw_api_key,
+            config.lifefun_api_base_url,
             jwt_token=config.resolved_jwt(),
         )
 

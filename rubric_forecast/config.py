@@ -44,8 +44,7 @@ class AutopilotConfig:
     dry_run: bool
     chain_id: int
     rpc_url: Optional[str]
-    openclaw_base_url: Optional[str]
-    openclaw_api_key: Optional[str]
+    lifefun_api_base_url: Optional[str]
     lifefun_jwt: Optional[str]
     lifefun_jwt_file_path: Path
     lifefun_login_address: Optional[str]
@@ -87,12 +86,7 @@ class AutopilotConfig:
             dry_run=_env_bool("AUTOPILOT_DRY_RUN", True),
             chain_id=_env_int("AUTOPILOT_CHAIN_ID", 56),
             rpc_url=os.environ.get("AUTOPILOT_RPC_URL") or os.environ.get("RPC_URL"),
-            openclaw_base_url=os.environ.get("OPENCLAW_BASE_URL") or os.environ.get(
-                "LIFEFUN_API_BASE_URL"
-            ),
-            openclaw_api_key=os.environ.get("OPENCLAW_API_KEY") or os.environ.get(
-                "AUTOPILOT_OPENCLAW_KEY"
-            ),
+            lifefun_api_base_url=os.environ.get("LIFEFUN_API_BASE_URL"),
             lifefun_jwt=os.environ.get("LIFEFUN_JWT") or os.environ.get("AUTOPILOT_JWT"),
             lifefun_jwt_file_path=Path(
                 os.environ.get("LIFEFUN_JWT_FILE", str(data_dir / "lifefun.jwt"))

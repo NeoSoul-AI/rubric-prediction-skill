@@ -67,8 +67,7 @@ rubric-autopilot status
 | `AUTOPILOT_DATA_DIR` | Data directory (default `~/.rubric_autopilot`) |
 | `AUTOPILOT_DRY_RUN` | `true`/`false` (default `true`) |
 | `AUTOPILOT_CANDIDATES_FILE` | JSON list of rubric candidates (skips API if set) |
-| `OPENCLAW_BASE_URL` / `LIFEFUN_API_BASE_URL` | API base URL |
-| `OPENCLAW_API_KEY` | Bearer for API |
+| `LIFEFUN_API_BASE_URL` | API base URL |
 | `LIFEFUN_JWT` / `AUTOPILOT_JWT` | JWT for Lifefun write APIs |
 | `LIFEFUN_JWT_FILE` | JWT file path (default `~/.rubric_autopilot/lifefun.jwt`) |
 | `LIFEFUN_LOGIN_ADDRESS` | Address used by `auth-login` |
@@ -81,7 +80,7 @@ rubric-autopilot status
 
 ## OpenClaw (小龙虾)
 
-Point `OPENCLAW_BASE_URL` at your LifeFun-compatible API.
+Point `LIFEFUN_API_BASE_URL` at your LifeFun-compatible API.
 
 Implemented API alignment:
 
@@ -97,7 +96,6 @@ Implemented API alignment:
 | write | `POST /v1/agents/{id}/memories/from-opinion` | JWT |
 | write | `POST /v1/agents/{id}/mint` | JWT |
 | write | `POST /v1/agents/{id}/openclaw-key/rotate` | JWT |
-| openclaw | `GET /v1/openclaw/me` | OpenClaw key |
 
 ## Extending on-chain actions
 

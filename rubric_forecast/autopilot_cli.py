@@ -22,8 +22,7 @@ def _password_from_env() -> str:
 
 def _build_adapter(cfg: AutopilotConfig) -> OpenClawAdapter:
     return OpenClawAdapter(
-        cfg.openclaw_base_url,
-        api_key=cfg.openclaw_api_key,
+        cfg.lifefun_api_base_url,
         jwt_token=cfg.resolved_jwt(),
     )
 
@@ -133,9 +132,8 @@ def cmd_auth_check(_args: argparse.Namespace) -> int:
     cfg = AutopilotConfig.from_env()
     adapter = _build_adapter(cfg)
     out: dict[str, object] = {
-        "base_url": cfg.openclaw_base_url,
+        "base_url": cfg.lifefun_api_base_url,
         "jwt_ok": False,
-        "openclaw_ok": False,
         "health_ok": False,
     }
     out["health_ok"] = adapter.health_ping()
@@ -144,13 +142,8 @@ def cmd_auth_check(_args: argparse.Namespace) -> int:
         out["jwt_ok"] = True
     except Exception as e:  # noqa: BLE001
         out["jwt_error"] = str(e)
-    try:
-        adapter.openclaw_me()
-        out["openclaw_ok"] = True
-    except Exception as e:  # noqa: BLE001
-        out["openclaw_error"] = str(e)
     print(json.dumps(out, ensure_ascii=False, indent=2))
-    return 0 if bool(out["jwt_ok"]) and bool(out["openclaw_ok"]) else 1
+    return 0 if bool(out["jwt_ok"]) else 1
 
 
 def cmd_status(_args: argparse.Namespace) -> int:
@@ -202,7 +195,7 @@ def main() -> int:
     p_auth_login.add_argument("--signature-file", help="read signature from file")
     p_auth_login.set_defaults(func=cmd_auth_login)
 
-    sub.add_parser("auth-check", help="check JWT heartbeat + openclaw_me").set_defaults(
+    sub.add_parser("auth-check", help="check JWT heartbeat").set_defaults(
         func=cmd_auth_check
     )
     sub.add_parser("status", help="tail audit log + state").set_defaults(func=cmd_status)

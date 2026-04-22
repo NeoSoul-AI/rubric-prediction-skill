@@ -26,7 +26,7 @@ class FakeResponse:
         return json.dumps(self.payload).encode("utf-8")
 
 
-def test_jwt_and_openclaw_headers(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_jwt_headers(monkeypatch: pytest.MonkeyPatch) -> None:
     seen_auth: list[str | None] = []
 
     def fake_urlopen(req, timeout):  # type: ignore[no-untyped-def]
@@ -37,22 +37,18 @@ def test_jwt_and_openclaw_headers(monkeypatch: pytest.MonkeyPatch) -> None:
             return FakeResponse({"token": "jwt-token", "expires_at": "2099-01-01"})
         if req.full_url.endswith("/v1/auth/heartbeat"):
             return FakeResponse({"status": "ok"})
-        if req.full_url.endswith("/v1/openclaw/me"):
-            return FakeResponse({"agent_id": 1})
         raise AssertionError(f"unexpected URL: {req.full_url}")
 
     monkeypatch.setattr("urllib.request.urlopen", fake_urlopen)
 
-    adapter = OpenClawAdapter("https://api.example.com", api_key="oc-key")
+    adapter = OpenClawAdapter("https://api.example.com")
     adapter.auth_nonce("0xabc")
     adapter.auth_login("0xabc", "1", "0xsig")
     adapter.auth_heartbeat()
-    adapter.openclaw_me()
 
     assert seen_auth[0] is None
     assert seen_auth[1] is None
     assert seen_auth[2] == "Bearer jwt-token"
-    assert seen_auth[3] == "Bearer oc-key"
 
 
 def test_http_error_is_wrapped(monkeypatch: pytest.MonkeyPatch) -> None:

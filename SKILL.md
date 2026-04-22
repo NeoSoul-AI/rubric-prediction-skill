@@ -225,11 +225,12 @@ Run sensitivity at least once:
 - Is structured explanation (`rubric_multidim_analysis`) present?
 - Does output include `engine.strict_decoupling = true`?
 
-## Local Autopilot (optional)
+## Execution Boundary (recommended)
 
-When the user needs **unattended local execution** (OpenClaw / LifeFun-style APIs, keystore signing, policy limits):
+For OpenClaw-integrated unattended execution:
 
-- Install extras: `pip install -e ".[autopilot]"`.
-- Use CLI `rubric-autopilot` (see `AUTOPILOT.md`). Do **not** put raw private keys in env; use `import-key` to create a keystore.
-- The daemon runs **scan → `run_forecast` → policy → audit**. Default `AUTOPILOT_DRY_RUN=true` avoids chain calls until contract calldata is integrated.
-- Numeric forecast scores must still come from `rubric_forecast.engine.run_forecast`, not hand-computed in chat.
+- Keep this skill focused on deterministic forecasting (`run_forecast`) only.
+- Put execution authority (topic discovery, feed/adopt/mint, onchain signing) in `lifefun-frontend` server runtime (`/api/autopilot/run`).
+- OpenClaw should trigger the frontend webhook/route on schedule; OpenClaw should not hold signing keys.
+
+`rubric-autopilot` remains available for local/offline experiments, but production automation should use the frontend orchestrator.
