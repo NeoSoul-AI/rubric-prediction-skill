@@ -19,6 +19,11 @@ class TxExecutor(Protocol):
 
     chain_id: int
 
+    @property
+    def address(self) -> str:
+        """EOA address used for gas estimation and signing."""
+        ...
+
     def send_contract_call(
         self,
         *,

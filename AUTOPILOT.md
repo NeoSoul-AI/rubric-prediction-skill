@@ -78,7 +78,7 @@ rubric-autopilot status
 | `AUTOPILOT_EXECUTION_MODE` | `eoa` or `session` (function whitelist via `SessionKeyExecutor`) |
 | `AUTOPILOT_BUNDLER_URL` | If set, ERC-4337 path must be implemented (currently fail-closed on send) |
 
-## OpenClaw (小龙虾)
+## OpenClaw
 
 Point `LIFEFUN_API_BASE_URL` at your LifeFun-compatible API.
 
@@ -94,19 +94,50 @@ Implemented API alignment:
 | auth | `POST /v1/auth/heartbeat` | JWT |
 | write | `POST /v1/references/feed` | JWT |
 | write | `POST /v1/agents/{id}/memories/from-opinion` | JWT |
+| read | `GET /v1/agents/{id}/mint` | JWT (returns `mint_with_sig` payload) |
 | write | `POST /v1/agents/{id}/mint` | JWT |
 | write | `POST /v1/agents/{id}/openclaw-key/rotate` | JWT |
 
+## Typed on-chain paths (recommended)
+
+**Mint (`mint_confirm`)** when `meta.tx_hash` is absent:
+
+1. `GET /v1/agents/{id}/mint` → `mint_with_sig` (backend EIP-712 signature).
+2. Local keystore submits `UserActionRouter.mintWithSig` on the configured RPC.
+3. `POST /v1/agents/{id}/mint` with `{ "tx_hash": "0x…" }` to confirm.
+
+**Adopt (`adopt`)** when `meta.auto_onchain: true` (and `AUTOPILOT_RPC_URL` + keystore):
+
+1. `POST /v1/agents/{id}/memories/from-opinion` → `reasoning_intake_with_sig`.
+2. Local keystore submits `intakeReasoning` with that payload.
+
+ABI is bundled as `rubric_forecast/contracts/user_action_router.json`. Refresh from `lifefun-frontend` with:
+
+```bash
+python scripts/sync-abis.py path/to/userActionRouter.abi.ts
+# or: rubric-autopilot sync-abis
+```
+
 ## Extending on-chain actions
 
-The daemon now dispatches write actions via candidate `meta.action_type`:
+The daemon dispatches write actions via candidate `meta.action_type`:
 
+- `predict_only` — forecast only, no API write
 - `feed_reference`
-- `adopt` (`prepare_only` by default, optional `submit_mode=executor_call`)
-- `mint_confirm`
+- `adopt` (`prepare_only` by default; `auto_onchain` or `submit_mode=executor_call` for chain)
+- `mint_confirm` (with or without existing `meta.tx_hash`)
 - `rotate_openclaw_key`
 
-For on-chain submit in `adopt` mode, include:
+Legacy `adopt` + `submit_mode=executor_call` still supports raw calldata:
+
 - `contract_address`
 - `data_hex`
 - optional `gas_limit`, `value_wei`, `function_name`
+
+## HTTP server
+
+```bash
+rubric-autopilot serve --host 127.0.0.1 --port 8787
+```
+
+Set `AUTOPILOT_WEBHOOK_TOKEN` to require `Authorization: Bearer …` on `/api/forecast` and `/api/autopilot/run`.

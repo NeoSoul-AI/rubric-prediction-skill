@@ -25,6 +25,10 @@ class EoaExecutor:
     def chain_id(self) -> int:
         return self._chain_id
 
+    @property
+    def address(self) -> str:
+        return str(self._account.address)
+
     def _require_web3(self):
         try:
             from web3 import Web3

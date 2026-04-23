@@ -29,6 +29,13 @@ def _env_float(key: str, default: float) -> float:
     return float(raw.strip())
 
 
+def _env_optional_int(key: str) -> Optional[int]:
+    raw = os.environ.get(key)
+    if raw is None or not str(raw).strip():
+        return None
+    return int(str(raw).strip())
+
+
 @dataclass
 class AutopilotConfig:
     """Runtime configuration for the local autopilot daemon."""
@@ -53,6 +60,13 @@ class AutopilotConfig:
     execution_mode: str
     min_normalized_score: float
     max_actions_per_cycle: int
+    adapter_name: str = "lifefun"
+    autopilot_default_target_agent_id: Optional[int] = None
+    autopilot_discovery_limit: int = 20
+    autopilot_enable_feed: bool = True
+    autopilot_enable_adopt: bool = True
+    autopilot_auto_onchain_adopt: bool = False
+    autopilot_webhook_token: Optional[str] = None
 
     @classmethod
     def from_env(cls) -> AutopilotConfig:
@@ -97,6 +111,13 @@ class AutopilotConfig:
             execution_mode=(os.environ.get("AUTOPILOT_EXECUTION_MODE") or "eoa").strip().lower(),
             min_normalized_score=_env_float("AUTOPILOT_MIN_SCORE", 0.55),
             max_actions_per_cycle=_env_int("AUTOPILOT_MAX_ACTIONS_PER_CYCLE", 5),
+            adapter_name=(os.environ.get("AUTOPILOT_ADAPTER") or "lifefun").strip().lower(),
+            autopilot_default_target_agent_id=_env_optional_int("AUTOPILOT_DEFAULT_TARGET_AGENT_ID"),
+            autopilot_discovery_limit=_env_int("AUTOPILOT_DISCOVERY_LIMIT", 20),
+            autopilot_enable_feed=_env_bool("AUTOPILOT_ENABLE_FEED", True),
+            autopilot_enable_adopt=_env_bool("AUTOPILOT_ENABLE_ADOPT", True),
+            autopilot_auto_onchain_adopt=_env_bool("AUTOPILOT_AUTO_ONCHAIN_ADOPT", False),
+            autopilot_webhook_token=os.environ.get("AUTOPILOT_WEBHOOK_TOKEN"),
         )
 
     def ensure_data_dir(self) -> None:

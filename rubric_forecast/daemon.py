@@ -8,17 +8,19 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from rubric_forecast.actions.base import ActionContext
+from rubric_forecast.actions.dispatch import dispatch_action, resolve_default_estimated_gas
+from rubric_forecast.adapters.base import AdapterContext
+from rubric_forecast.adapters.registry import get_adapter
 from rubric_forecast.audit import AuditLogger, new_run_id
 from rubric_forecast.config import AutopilotConfig, forbid_plaintext_private_key_in_env
 from rubric_forecast.engine import run_forecast
+from rubric_forecast.executor.contract_writer import ContractWriter
 from rubric_forecast.executor.eoa_executor import EoaExecutor
+from rubric_forecast.executor.selectors import selector_prefix
 from rubric_forecast.executor.session_key_executor import SessionKeyExecutor
 from rubric_forecast.keystore import unlock_keystore
-from rubric_forecast.openclaw_adapter import (
-    AdapterApiError,
-    OpenClawAdapter,
-    predictions_to_candidate_payloads,
-)
+from rubric_forecast.openclaw_adapter import OpenClawAdapter
 from rubric_forecast.planner import (
     build_forecast_payload_from_candidate,
     candidate_id_from_payload,
@@ -49,6 +51,7 @@ class AutopilotDaemon:
             config.lifefun_api_base_url,
             jwt_token=config.resolved_jwt(),
         )
+        self.dapp_adapter = get_adapter(config.adapter_name)
 
     def is_paused(self) -> bool:
         return self.config.pause_file_path.is_file()
@@ -73,13 +76,9 @@ class AutopilotDaemon:
         if not self.adapter.base_url:
             return []
         try:
-            raw = self.adapter.list_predictions(
-                status="open",
-                chain_id=self.config.chain_id,
-                limit=20,
-            )
-            return predictions_to_candidate_payloads(raw)
-        except Exception as e:
+            ctx = AdapterContext(config=self.config, api=self.adapter)
+            return self.dapp_adapter.discover_candidates(ctx)
+        except Exception as e:  # noqa: BLE001
             self.audit.log_event(
                 run_id=new_run_id(),
                 action_type="scan",
@@ -99,138 +98,28 @@ class AutopilotDaemon:
         action = meta.get("action_type") or cand.get("action_type") or "feed_reference"
         return str(action)
 
-    def _dispatch_write_action(
-        self,
-        *,
-        cand: Dict[str, Any],
-        cid: str,
-        run_id: str,
-        top_score: float,
-        final_answer: Any,
-        executor: Optional[Any],
-    ) -> bool:
-        meta = self._meta(cand)
+    def _policy_gas_and_function(self, cand: Dict[str, Any]) -> tuple[int, Optional[str], Optional[str]]:
         action_type = self._resolve_action_type(cand)
-        try:
-            if action_type == "feed_reference":
-                source_opinion_id = int(meta["source_opinion_id"])
-                target_agent_id = int(meta["target_agent_id"])
-                result = self.adapter.feed_reference(
-                    source_opinion_id=source_opinion_id,
-                    target_agent_id=target_agent_id,
-                    note=str(meta.get("note")) if meta.get("note") is not None else None,
-                    tx_hash=str(meta.get("tx_hash")) if meta.get("tx_hash") is not None else None,
-                )
-                self.audit.log_event(
-                    run_id=run_id,
-                    action_type=action_type,
-                    status="ok",
-                    chain_id=self.config.chain_id,
-                    details={"candidate_id": cid, "top_score": top_score, "result": result},
-                )
-                return True
-
-            if action_type == "adopt":
-                target_agent_id = meta.get("target_agent_id") or meta.get("agent_id")
-                if target_agent_id is None:
-                    raise ValueError("adopt action missing target_agent_id/agent_id")
-                opinion_id = int(meta["opinion_id"])
-                result = self.adapter.memory_from_opinion(
-                    agent_id=target_agent_id,
-                    opinion_id=opinion_id,
-                    reasoning_hash=(
-                        str(meta.get("reasoning_hash"))
-                        if meta.get("reasoning_hash") is not None
-                        else None
-                    ),
-                    tx_hash=str(meta.get("tx_hash")) if meta.get("tx_hash") is not None else None,
-                )
-                submit_mode = str(meta.get("submit_mode", "prepare_only"))
-                if submit_mode == "executor_call":
-                    if executor is None:
-                        raise RuntimeError(
-                            "executor required for submit_mode=executor_call "
-                            "(set AUTOPILOT_RPC_URL + keystore password)"
-                        )
-                    to_addr = meta.get("contract_address")
-                    data_hex = meta.get("data_hex")
-                    if not to_addr or not data_hex:
-                        raise ValueError(
-                            "executor_call requires meta.contract_address and meta.data_hex"
-                        )
-                    tx_result = executor.send_contract_call(
-                        to=str(to_addr),
-                        data_hex=str(data_hex),
-                        value_wei=int(meta.get("value_wei", 0)),
-                        gas_limit=(
-                            int(meta["gas_limit"]) if meta.get("gas_limit") is not None else None
-                        ),
-                        function_name=str(meta.get("function_name", "intakeReasoning")),
-                    )
-                    if not tx_result.ok:
-                        raise RuntimeError(tx_result.error or "executor call failed")
-                self.audit.log_event(
-                    run_id=run_id,
-                    action_type=action_type,
-                    status="ok",
-                    chain_id=self.config.chain_id,
-                    details={
-                        "candidate_id": cid,
-                        "top_score": top_score,
-                        "final_answer": final_answer,
-                        "result": result,
-                        "submit_mode": submit_mode,
-                    },
-                )
-                return True
-
-            if action_type == "mint_confirm":
-                target_agent_id = meta.get("target_agent_id") or meta.get("agent_id")
-                if target_agent_id is None:
-                    raise ValueError("mint_confirm missing target_agent_id/agent_id")
-                tx_hash = str(meta["tx_hash"])
-                result = self.adapter.confirm_mint(agent_id=target_agent_id, tx_hash=tx_hash)
-                self.audit.log_event(
-                    run_id=run_id,
-                    action_type=action_type,
-                    status="ok",
-                    chain_id=self.config.chain_id,
-                    details={"candidate_id": cid, "top_score": top_score, "result": result},
-                )
-                return True
-
-            if action_type == "rotate_openclaw_key":
-                target_agent_id = meta.get("target_agent_id") or meta.get("agent_id")
-                if target_agent_id is None:
-                    raise ValueError("rotate_openclaw_key missing target_agent_id/agent_id")
-                result = self.adapter.rotate_openclaw_key(agent_id=target_agent_id)
-                self.audit.log_event(
-                    run_id=run_id,
-                    action_type=action_type,
-                    status="ok",
-                    chain_id=self.config.chain_id,
-                    details={"candidate_id": cid, "top_score": top_score, "result": result},
-                )
-                return True
-
-            self.audit.log_event(
-                run_id=run_id,
-                action_type=action_type,
-                status="skip",
-                chain_id=self.config.chain_id,
-                details={"candidate_id": cid, "reason": "unsupported action_type"},
-            )
-            return False
-        except (KeyError, ValueError, AdapterApiError, RuntimeError) as e:
-            self.audit.log_event(
-                run_id=run_id,
-                action_type=action_type,
-                status="error",
-                chain_id=self.config.chain_id,
-                error=str(e),
-                details={"candidate_id": cid},
-            )
-            return False
+        meta = self._meta(cand)
+        fn: Optional[str] = None
+        est = resolve_default_estimated_gas(action_type)
+        if action_type == "mint_confirm":
+            if meta.get("tx_hash"):
+                est = 21_000
+                fn = "generic"
+            else:
+                est = resolve_default_estimated_gas("mint_confirm")
+                fn = "mintWithSig"
+        elif action_type == "adopt" and (
+            meta.get("auto_onchain") or meta.get("submit_mode") == "executor_call"
+        ):
+            est = resolve_default_estimated_gas("adopt")
+            fn = str(meta.get("function_name", "intakeReasoning"))
+        elif action_type == "adopt":
+            est = 21_000
+            fn = "generic"
+        prefix = selector_prefix(fn) if fn else None
+        return est, fn, prefix
 
     def _ensure_executor(self, password: str) -> Any:
         if self._executor is not None:
@@ -252,9 +141,15 @@ class AutopilotDaemon:
             self._executor = inner
         return self._executor
 
-    def run_once(self, *, keystore_password: str) -> Dict[str, Any]:
+    def run_once(
+        self,
+        *,
+        keystore_password: str,
+        candidates_override: Optional[List[Dict[str, Any]]] = None,
+    ) -> Dict[str, Any]:
         forbid_plaintext_private_key_in_env()
         self.policy.reload_policy()
+        self.adapter.set_jwt(self.config.resolved_jwt())
         run_id = new_run_id()
         summary: Dict[str, Any] = {
             "run_id": run_id,
@@ -285,8 +180,24 @@ class AutopilotDaemon:
             return summary
 
         self.phase = JobPhase.scanning
-        candidates = self._load_candidates()
+        candidates = candidates_override if candidates_override is not None else self._load_candidates()
         summary["candidates"] = len(candidates)
+
+        ex: Any = None
+        cw: Optional[ContractWriter] = None
+        if (
+            not self.config.dry_run
+            and self.config.rpc_url
+            and keystore_password
+            and self.config.keystore_path.is_file()
+        ):
+            ex = self._ensure_executor(keystore_password)
+            if ex is not None:
+                cw = ContractWriter(
+                    rpc_url=self.config.rpc_url,
+                    chain_id=self.config.chain_id,
+                    executor=ex,
+                )
 
         self.phase = JobPhase.deciding
         for idx, cand in enumerate(candidates[: self.config.max_actions_per_cycle]):
@@ -302,16 +213,16 @@ class AutopilotDaemon:
                 )
                 continue
 
-            result = run_forecast(payload)
-            top = normalized_top_score(result)
+            forecast_result = run_forecast(payload)
+            top = normalized_top_score(forecast_result)
             summary["actions_planned"] += 1
 
-            if result.get("status") != "ok":
+            if forecast_result.get("status") != "ok":
                 self.audit.log_event(
                     run_id=run_id,
                     action_type="forecast",
                     status="insufficient",
-                    details={"candidate_id": cid, "engine": result.get("engine")},
+                    details={"candidate_id": cid, "engine": forecast_result.get("engine")},
                 )
                 continue
 
@@ -320,15 +231,24 @@ class AutopilotDaemon:
                     run_id=run_id,
                     action_type="decision",
                     status="skip",
-                    details={"candidate_id": cid, "top_score": top, "min": self.config.min_normalized_score},
+                    details={
+                        "candidate_id": cid,
+                        "top_score": top,
+                        "min": self.config.min_normalized_score,
+                    },
                 )
                 continue
 
+            action_type = self._resolve_action_type(cand)
+            est, fn_hint, calldata_pfx = self._policy_gas_and_function(cand)
             pre = self.policy.check_action(
                 chain_id=self.config.chain_id,
-                action_type=self._resolve_action_type(cand),
-                estimated_gas=21000,
+                action_type=action_type,
+                to_address=None,
+                function_name=fn_hint or "generic",
+                estimated_gas=est,
                 dedup_key=cid,
+                calldata_prefix=calldata_pfx,
             )
             if not pre.allowed:
                 self.audit.log_event(
@@ -348,8 +268,8 @@ class AutopilotDaemon:
                     details={
                         "candidate_id": cid,
                         "top_score": top,
-                        "final_answer": result.get("final_answer"),
-                        "action_type": self._resolve_action_type(cand),
+                        "final_answer": forecast_result.get("final_answer"),
+                        "action_type": action_type,
                         "meta": self._meta(cand),
                     },
                 )
@@ -357,39 +277,62 @@ class AutopilotDaemon:
                 continue
 
             self.phase = JobPhase.executing
-            needs_executor = self._meta(cand).get("submit_mode") == "executor_call"
-            ex = self._ensure_executor(keystore_password) if needs_executor else None
-            if needs_executor and ex is None:
+            meta = self._meta(cand)
+            needs_ex = meta.get("submit_mode") == "executor_call" or (
+                action_type == "mint_confirm" and not meta.get("tx_hash")
+            )
+            needs_ex = needs_ex or (action_type == "adopt" and bool(meta.get("auto_onchain")))
+            if needs_ex and ex is None:
                 self.audit.log_event(
                     run_id=run_id,
-                    action_type=self._resolve_action_type(cand),
+                    action_type=action_type,
                     status="error",
                     error=(
-                        "executor required by submit_mode=executor_call; "
-                        "set AUTOPILOT_RPC_URL, keystore, AUTOPILOT_KEYSTORE_PASSWORD"
+                        "on-chain executor required; set AUTOPILOT_RPC_URL, import keystore, "
+                        "AUTOPILOT_KEYSTORE_PASSWORD"
                     ),
                     details={"candidate_id": cid},
                 )
                 self.policy.record_failure()
                 continue
 
-            ok = self._dispatch_write_action(
-                cand=cand,
+            actx = ActionContext(
+                daemon=self,
+                candidate=cand,
                 cid=cid,
                 run_id=run_id,
                 top_score=top,
-                final_answer=result.get("final_answer"),
+                final_answer=forecast_result.get("final_answer"),
                 executor=ex,
+                contract_writer=cw,
             )
-            if ok:
-                self.policy.record_action_committed(
-                    self._resolve_action_type(cand),
-                    21000,
-                    dedup_key=cid,
-                )
+            out = dispatch_action(actx)
+            if out.ok:
+                gas_used = int(out.gas_used or 0)
+                self.policy.record_action_committed(action_type, gas_used, dedup_key=cid)
                 self.policy.record_success()
                 summary["executed"] += 1
+                self.audit.log_event(
+                    run_id=run_id,
+                    action_type=action_type,
+                    status="ok",
+                    chain_id=self.config.chain_id,
+                    details={
+                        "candidate_id": cid,
+                        "top_score": top,
+                        "gas_used": gas_used,
+                        **(out.detail or {}),
+                    },
+                )
             else:
+                self.audit.log_event(
+                    run_id=run_id,
+                    action_type=action_type,
+                    status="error",
+                    chain_id=self.config.chain_id,
+                    error=out.error or "action failed",
+                    details={"candidate_id": cid},
+                )
                 self.policy.record_failure()
 
         self.phase = JobPhase.idle
@@ -399,7 +342,7 @@ class AutopilotDaemon:
         while True:
             try:
                 self.run_once(keystore_password=keystore_password)
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 self.audit.log_event(
                     run_id=new_run_id(),
                     action_type="cycle",

@@ -167,7 +167,8 @@ class OpenClawAdapter:
             params["chain_id"] = chain_id
         if agent_id is not None:
             params["agent_id"] = agent_id
-        return self._request("GET", "/v1/platform/feeding", params=params, auth="none")
+        auth: AuthMode = "jwt" if self.jwt_token else "none"
+        return self._request("GET", "/v1/platform/feeding", params=params, auth=auth)
 
     # ---- Write APIs (JWT required) ----
     def feed_reference(
@@ -216,6 +217,9 @@ class OpenClawAdapter:
             auth="jwt",
         )
 
+    def get_mint_payload(self, agent_id: int | str) -> Any:
+        return self._request("GET", f"/v1/agents/{agent_id}/mint", auth="jwt")
+
     def rotate_openclaw_key(self, *, agent_id: int | str) -> Any:
         return self._request(
             "POST",
@@ -223,6 +227,7 @@ class OpenClawAdapter:
             body={},
             auth="jwt",
         )
+
 
 def predictions_to_candidate_payloads(raw: Any) -> List[Dict[str, Any]]:
     """

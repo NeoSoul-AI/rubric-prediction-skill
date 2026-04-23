@@ -32,9 +32,15 @@ autopilot = [
 rubric-forecast = "rubric_forecast.engine:main"
 rubric-autopilot = "rubric_forecast.autopilot_cli:main"
 
+[project.entry-points."rubric_forecast.adapters"]
+lifefun = "rubric_forecast.adapters.lifefun:LifeFunDAppAdapter"
+
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["rubric_forecast*"]
+
+[tool.setuptools.package-data]
+rubric_forecast = ["contracts/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

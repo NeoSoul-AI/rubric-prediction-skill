@@ -225,12 +225,22 @@ Run sensitivity at least once:
 - Is structured explanation (`rubric_multidim_analysis`) present?
 - Does output include `engine.strict_decoupling = true`?
 
+## Autopilot mode (standalone Python)
+
+You can run the full **discover → forecast → policy → LifeFun writes → optional on-chain** loop without Node:
+
+- CLI: `pip install -e ".[autopilot]"` then `rubric-autopilot run` (see [AUTOPILOT.md](AUTOPILOT.md)).
+- HTTP (OpenClaw-compatible with `lifefun-frontend`): `rubric-autopilot serve` exposes `POST /api/forecast` and `POST /api/autopilot/run` (optional `AUTOPILOT_WEBHOOK_TOKEN` + `Authorization: Bearer …`).
+- Pluggable DApp discovery: `AUTOPILOT_ADAPTER=lifefun` (default) or register a class via setuptools entry point group `rubric_forecast.adapters`.
+- **EIP-712 / `mint_with_sig` signatures always come from the backend**; the local keystore only signs the EVM transaction that submits `mintWithSig` / `intakeReasoning`.
+
 ## Execution Boundary (recommended)
 
-For OpenClaw-integrated unattended execution:
+For OpenClaw-integrated unattended execution you may use **either**:
 
-- Keep this skill focused on deterministic forecasting (`run_forecast`) only.
-- Put execution authority (topic discovery, feed/adopt/mint, onchain signing) in `lifefun-frontend` server runtime (`/api/autopilot/run`).
-- OpenClaw should trigger the frontend webhook/route on schedule; OpenClaw should not hold signing keys.
+- `lifefun-frontend` server runtime (`/api/autopilot/run`), or
+- `rubric-autopilot serve` on a trusted host with keystore + `AUTOPILOT_WEBHOOK_TOKEN`.
 
-`rubric-autopilot` remains available for local/offline experiments, but production automation should use the frontend orchestrator.
+Keep this skill’s **LLM contract** focused on deterministic forecasting (`run_forecast`) and audited JSON; do not hand-compute scores in chat.
+
+OpenClaw should **schedule/trigger** only; it should not hold executor private keys.

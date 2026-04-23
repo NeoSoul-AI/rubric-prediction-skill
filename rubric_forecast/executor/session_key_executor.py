@@ -30,6 +30,10 @@ class SessionKeyExecutor:
     def chain_id(self) -> int:
         return int(self._inner.chain_id)
 
+    @property
+    def address(self) -> str:
+        return self._inner.address
+
     def send_contract_call(
         self,
         *,

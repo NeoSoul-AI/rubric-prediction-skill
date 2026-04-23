@@ -8,6 +8,7 @@ import os
 import sys
 from pathlib import Path
 
+from rubric_forecast.adapters.registry import list_adapter_names
 from rubric_forecast.audit import AuditLogger
 from rubric_forecast.config import AutopilotConfig, forbid_plaintext_private_key_in_env
 from rubric_forecast.daemon import AutopilotDaemon, ensure_policy_file
@@ -58,6 +59,8 @@ def cmd_init_policy(_args: argparse.Namespace) -> int:
 
 def cmd_run(args: argparse.Namespace) -> int:
     forbid_plaintext_private_key_in_env()
+    if args.adapter:
+        os.environ["AUTOPILOT_ADAPTER"] = str(args.adapter).strip().lower()
     cfg = AutopilotConfig.from_env()
     ensure_policy_file(cfg.policy_path)
     pw = _password_from_env()
@@ -171,6 +174,45 @@ def cmd_resume(_args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_list_adapters(_args: argparse.Namespace) -> int:
+    print(json.dumps({"adapters": list_adapter_names()}, indent=2))
+    return 0
+
+
+def cmd_serve(args: argparse.Namespace) -> int:
+    forbid_plaintext_private_key_in_env()
+    cfg = AutopilotConfig.from_env()
+    ensure_policy_file(cfg.policy_path)
+    token = cfg.autopilot_webhook_token
+    from rubric_forecast.server.http import serve
+
+    print(
+        json.dumps(
+            {
+                "listen": f"{args.host}:{args.port}",
+                "webhook_token_configured": bool(token),
+                "endpoints": ["/api/forecast", "/api/autopilot/run"],
+            },
+            indent=2,
+        )
+    )
+    serve(args.host, args.port, webhook_token=token)
+    return 0
+
+
+def cmd_sync_abis(args: argparse.Namespace) -> int:
+    import subprocess
+
+    repo = Path(__file__).resolve().parents[1]
+    script = repo / "scripts" / "sync-abis.py"
+    cmd = [sys.executable, str(script)]
+    if args.source:
+        cmd.append(args.source)
+    if args.out:
+        cmd.extend(["-o", args.out])
+    return int(subprocess.call(cmd))
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(prog="rubric-autopilot")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -187,7 +229,47 @@ def main() -> int:
 
     p_run = sub.add_parser("run", help="one cycle or loop")
     p_run.add_argument("--loop", action="store_true", help="poll forever")
+    p_run.add_argument(
+        "--once",
+        action="store_true",
+        help="single cycle (default when --loop is not set)",
+    )
+    p_run.add_argument(
+        "--adapter",
+        default="",
+        help="DApp adapter name (default: lifefun or AUTOPILOT_ADAPTER)",
+    )
     p_run.set_defaults(func=cmd_run)
+
+    p_serve = sub.add_parser("serve", help="HTTP /api/forecast and /api/autopilot/run")
+    p_serve.add_argument(
+        "--host",
+        default=os.environ.get("AUTOPILOT_HTTP_HOST", "127.0.0.1"),
+    )
+    p_serve.add_argument(
+        "--port",
+        type=int,
+        default=int(os.environ.get("AUTOPILOT_HTTP_PORT", "8787")),
+    )
+    p_serve.set_defaults(func=cmd_serve)
+
+    sub.add_parser("list-adapters", help="print registered DApp adapter names").set_defaults(
+        func=cmd_list_adapters
+    )
+
+    p_sync = sub.add_parser("sync-abis", help="sync UserActionRouter ABI from lifefun-frontend TS")
+    p_sync.add_argument(
+        "source",
+        nargs="?",
+        help="Path to userActionRouter.abi.ts (default: sibling lifefun-frontend path)",
+    )
+    p_sync.add_argument(
+        "-o",
+        "--out",
+        default="",
+        help="Output JSON path (default: rubric_forecast/contracts/user_action_router.json)",
+    )
+    p_sync.set_defaults(func=cmd_sync_abis)
 
     p_auth_login = sub.add_parser("auth-login", help="nonce+signature login and persist JWT")
     p_auth_login.add_argument("--address", help="wallet address")

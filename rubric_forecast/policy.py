@@ -15,6 +15,7 @@ DEFAULT_POLICY: Dict[str, Any] = {
     "chain_whitelist": [56, 97, 1, 137],
     "contract_whitelist": [],
     "function_whitelist": [
+        "generic",
         "mintWithSig",
         "intakeReasoning",
         "judge",
@@ -22,16 +23,27 @@ DEFAULT_POLICY: Dict[str, Any] = {
     ],
     "limits": {
         "single_tx_max_gas": 500_000,
+        "single_tx_max_gas_by_action": {
+            "predict_only": 21_000,
+            "feed_reference": 21_000,
+            "rotate_openclaw_key": 21_000,
+            "mint_confirm": 500_000,
+            "adopt": 500_000,
+        },
         "daily_gas_budget_units": 5_000_000_000,
         "daily_action_limit": 100,
         "daily_action_limit_by_type": {
             "mint": 10,
+            "mint_confirm": 10,
             "adopt": 40,
+            "predict_only": 200,
+            "rotate_openclaw_key": 50,
             "endorse": 40,
             "feed_reference": 50,
             "generic": 100,
         },
     },
+    "function_selector_whitelist": [],
     "cooldown": {
         "by_agent_seconds": 120,
         "by_topic_seconds": 300,
@@ -130,6 +142,7 @@ class PolicyEngine:
         function_name: Optional[str] = None,
         estimated_gas: int = 21000,
         dedup_key: Optional[str] = None,
+        calldata_prefix: Optional[str] = None,
     ) -> PolicyCheckResult:
         reasons: List[str] = []
         if not self._policy.get("enabled", True):
@@ -150,6 +163,13 @@ class PolicyEngine:
         if fw and fn not in fw:
             reasons.append(f"function {fn} not in function_whitelist")
 
+        sel_wl: List[str] = list(self._policy.get("function_selector_whitelist") or [])
+        if sel_wl and calldata_prefix:
+            norm = calldata_prefix.strip().lower()
+            allowed = {str(s).strip().lower() for s in sel_wl}
+            if norm not in allowed:
+                reasons.append("calldata function selector not in function_selector_whitelist")
+
         contracts: List[str] = [c.lower() for c in (self._policy.get("contract_whitelist") or [])]
         if contracts and to_address:
             if to_address.lower() not in contracts:
@@ -168,9 +188,14 @@ class PolicyEngine:
             if int(counts.get(action_type, 0)) >= int(cap):
                 reasons.append(f"daily limit for action type {action_type}")
 
-        max_gas = int(limits.get("single_tx_max_gas", 10_000_000))
+        by_gas = limits.get("single_tx_max_gas_by_action") or {}
+        base_gas_cap = int(limits.get("single_tx_max_gas", 10_000_000))
+        if action_type in by_gas:
+            max_gas = min(int(by_gas[action_type]), base_gas_cap)
+        else:
+            max_gas = base_gas_cap
         if estimated_gas > max_gas:
-            reasons.append(f"estimated_gas {estimated_gas} > single_tx_max_gas {max_gas}")
+            reasons.append(f"estimated_gas {estimated_gas} > cap {max_gas} for action {action_type}")
 
         budget = int(limits.get("daily_gas_budget_units", 10**18))
         if int(self._state.get("daily_gas_used", 0)) + estimated_gas > budget:
