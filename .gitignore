@@ -1,8 +1,9 @@
 # Local state and runtime artifacts
 state/
 
-# Local EvoEvo config (copy from config/evo_config.example.json)
+# Local EvoEvo config and secrets (copy from config/evo_config.example.json)
 config/evo_config.json
+config/evo_wallets.json
 
 # Byte-compiled / cache
 __pycache__/
