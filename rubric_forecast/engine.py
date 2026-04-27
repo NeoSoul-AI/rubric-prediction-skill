@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """
-Deterministic rubric forecasting engine.
+Deterministic rubric forecasting engine (JSON in/out).
 
 Usage:
   python -m rubric_forecast --input input.json
   python scripts/rubric_forecast.py --input input.json
-  cat input.json | python -m rubric_forecast
 """
 
 from __future__ import annotations
@@ -21,7 +20,7 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
 
 ENGINE_NAME = "rubric-forecast-engine"
-ENGINE_VERSION = "2.2.0"
+ENGINE_VERSION = "2.3.0"
 ENGINE_STRICT_DECOUPLING = True
 
 STRENGTH_FACTOR_MAP: Dict[str, float] = {
@@ -38,25 +37,25 @@ LEGACY_DIMENSIONS: List[Dict[str, Any]] = [
         "key": "reliability",
         "label": "Reliability",
         "weight": 0.35,
-        "why_it_matters": "Whether the evidence source is credible and verifiable.",
+        "why_it_matters": "Measures whether the evidence source is credible and verifiable.",
     },
     {
         "key": "mechanism_fit",
         "label": "Mechanism fit",
         "weight": 0.25,
-        "why_it_matters": "Whether there is a clear causal link between the evidence and the outcome.",
+        "why_it_matters": "Measures whether the evidence has a clear causal link to the outcome.",
     },
     {
         "key": "novelty",
         "label": "Novelty",
         "weight": 0.20,
-        "why_it_matters": "Whether the information adds new decision value.",
+        "why_it_matters": "Measures whether the information adds new decision value.",
     },
     {
         "key": "timeliness",
         "label": "Timeliness",
         "weight": 0.20,
-        "why_it_matters": "Whether the information is close enough to the current decision context.",
+        "why_it_matters": "Measures whether the information is close enough to the current decision window.",
     },
 ]
 
@@ -308,10 +307,10 @@ def _rank_options(
 
 def _position_label(rank_idx: int) -> str:
     if rank_idx == 0:
-        return "Leading"
+        return "leading"
     if rank_idx == 1:
-        return "Runner-up"
-    return "Trailing"
+        return "runner-up"
+    return "chasing"
 
 
 def _top_rows_for_option(
@@ -350,10 +349,10 @@ def _rows_for_dimension(
 
 def _format_evidence_line(row: Dict[str, Any]) -> str:
     contribution = float(row["contribution"])
-    direction = "support" if contribution >= 0 else "oppose"
+    direction = "supports" if contribution >= 0 else "suppresses"
     claim = str(row.get("claim", "")).strip()
     source = str(row.get("source", "")).strip()
-    reason = claim if claim else (source if source else "No summary provided")
+    reason = claim if claim else (source if source else "no summary provided")
     return f"{row['id']} ({direction}, contribution {contribution:+.3f}): {reason}"
 
 
@@ -361,7 +360,7 @@ def _compact_evidence_phrase(row: Dict[str, Any], max_len: int = 88) -> str:
     contribution = float(row["contribution"])
     claim = str(row.get("claim", "")).strip()
     source = str(row.get("source", "")).strip()
-    text = claim if claim else (source if source else "No summary provided")
+    text = claim if claim else (source if source else "no summary provided")
     if len(text) > max_len:
         text = text[: max_len - 1] + "..."
     return f"{row['id']}({contribution:+.3f}) {text}"
@@ -369,10 +368,10 @@ def _compact_evidence_phrase(row: Dict[str, Any], max_len: int = 88) -> str:
 
 def _dimension_assessment(value: float, threshold: float) -> str:
     if abs(value) <= threshold:
-        return "Neutral impact"
+        return "neutral impact"
     if value > 0:
-        return "Positive driver"
-    return "Negative drag"
+        return "positive driver"
+    return "negative drag"
 
 
 def _option_contribution_totals(
@@ -403,9 +402,9 @@ def _dependency_narrative(ledger: Sequence[Dict[str, Any]]) -> str:
         penalized = [row for row in rows if float(row.get("dependency_penalty", 1.0)) < 1.0]
         if penalized:
             penal_ids = ", ".join(str(row["id"]) for row in penalized)
-            notes.append(f"In group {group}, {penal_ids} triggered a correlation penalty")
+            notes.append(f"Rows {penal_ids} in dependency group {group} triggered a correlation penalty")
     if not notes:
-        return "No duplicate sources in this evidence set required an extra correlation penalty."
+        return "No duplicate-source pattern required an extra correlation penalty in this evidence set."
     return "; ".join(notes) + "."
 
 
@@ -416,7 +415,7 @@ def _weights_summary(dimensions: Sequence[Dict[str, Any]]) -> str:
 
 
 def _clean_sentence_tail(text: str) -> str:
-    return text.strip().rstrip("。；;，,.!?")
+    return text.strip().rstrip("。；;，,. ")
 
 
 def _natural_join(parts: Sequence[str]) -> str:
@@ -433,7 +432,7 @@ def _natural_join(parts: Sequence[str]) -> str:
 def _claim_summary(row: Dict[str, Any], max_len: int = 100) -> str:
     claim = str(row.get("claim", "")).strip()
     source = str(row.get("source", "")).strip()
-    text = claim if claim else (source if source else "No summary provided")
+    text = claim if claim else (source if source else "no summary provided")
     text = _clean_sentence_tail(text)
     if len(text) > max_len:
         text = text[: max_len - 1] + "..."
@@ -442,22 +441,22 @@ def _claim_summary(row: Dict[str, Any], max_len: int = 100) -> str:
 
 def _lead_descriptor(gap: float) -> str:
     if gap < 0.08:
-        return "is only slightly ahead"
+        return "holds only a slight edge"
     if gap < 0.18:
-        return "is modestly ahead"
+        return "has a modest lead"
     if gap < 0.30:
         return "has a meaningful edge"
-    return "is clearly ahead"
+    return "has a clear lead"
 
 
 def _confidence_descriptor(top_score: float) -> str:
     if top_score < 0.58:
-        return "overall the call remains very tight"
+        return "the market is still extremely close overall"
     if top_score < 0.70:
-        return "the conclusion tilts one way, but disagreement is still material"
+        return "the conclusion leans one way, but disagreement is still material"
     if top_score < 0.82:
-        return "the conclusion has a fairly clear edge"
-    return "the conclusion has a strong edge"
+        return "the conclusion has formed a fairly clear edge"
+    return "the conclusion has formed a strong edge"
 
 
 def _top_dimensions_by_weight(
@@ -468,24 +467,24 @@ def _top_dimensions_by_weight(
 
 def _probability_phrase(value: float) -> str:
     if value < 0.08:
-        return "well under ~10%"
+        return "under 10%"
     if value < 0.18:
-        return "a bit over ~10%"
+        return "in the low teens"
     if value < 0.28:
-        return "roughly low-20s %"
+        return "in the low 20s"
     if value < 0.38:
-        return "roughly mid-30s %"
+        return "around the low 30s"
     if value < 0.48:
-        return "~40%"
+        return "around the low 40s"
     if value < 0.58:
-        return "a coin-flip level"
+        return "close to a coin flip"
     if value < 0.68:
-        return "~60%"
+        return "around 60%"
     if value < 0.78:
-        return "~70%"
+        return "around 70%"
     if value < 0.88:
-        return "~80%"
-    return "near decisive"
+        return "around 80%"
+    return "close to a lock"
 
 
 def _dominant_dimension_labels(
@@ -509,10 +508,8 @@ def _rubric_design_summary(dimensions: Sequence[Dict[str, Any]]) -> str:
         if why:
             parts.append(f"{dim['label']}: {why}")
         else:
-            parts.append(
-                f"{dim['label']}: captures one key facet of judgment for this question."
-            )
-    return "Topic-specific rubric dimensions: " + "; ".join(parts)
+            parts.append(f"{dim['label']}: used to evaluate a key decision axis for this question.")
+    return "This question uses the following topic-specific rubric dimensions: " + "; ".join(parts)
 
 
 def _build_reasoning_narrative(
@@ -531,30 +528,26 @@ def _build_reasoning_narrative(
     second_option = ranked[1] if len(ranked) > 1 else None
     top_dims = _top_dimensions_by_weight(dimensions, limit=min(3, len(dimensions)))
     top_dim_labels = [str(dim["label"]) for dim in top_dims]
-    focus_sentences = [
-        f"The real disagreement centers on {_natural_join(top_dim_labels)}. "
-    ]
+    focus_sentences = [f"The main disagreement in this question runs through {_natural_join(top_dim_labels)}."]
     for dim in top_dims[:2]:
         why = _clean_sentence_tail(str(dim.get("why_it_matters", "")).strip())
         if why:
-            focus_sentences.append(f"{dim['label']} matters: {why}. ")
-    p1 = "".join(focus_sentences)
+            focus_sentences.append(f"{dim['label']} matters because {why}.")
+    p1 = " ".join(focus_sentences)
 
     top_support = _top_rows_for_option(evidence_ledger, top_option, positive=True, limit=2)
     top_support_text = (
         "; ".join(f"{row['id']}: {_claim_summary(row)}" for row in top_support)
         if top_support
-        else "There is not yet strong enough positive evidence."
+        else "There is not yet enough strong positive evidence."
     )
     top_dims_winner = _dominant_dimension_labels(
         option_dimension_totals.get(top_option, {}), dimensions, limit=2
     )
     winner_prob = _probability_phrase(normalized[top_option])
     p2 = (
-        f"The scenario that currently fits best is {top_option}. "
-        f"The main evidence pushing the call that way is {top_support_text}. "
-        f"They jointly reinforce {_natural_join(top_dims_winner) or 'the core dimensions'}, "
-        f"making this narrative the primary path at roughly {winner_prob} weight."
+        f"Right now, the leading scenario is {top_option}. The main evidence pushing the judgment in that direction is {top_support_text}. "
+        f"Together, those points strengthen {_natural_join(top_dims_winner) or 'the core dimensions'}, putting the current likelihood at roughly {winner_prob}."
     )
 
     p3 = ""
@@ -565,66 +558,52 @@ def _build_reasoning_narrative(
         second_support_text = (
             "; ".join(f"{row['id']}: {_claim_summary(row)}" for row in second_support)
             if second_support
-            else "Coherent supporting evidence is still thin."
+            else "There is currently no well-structured supporting case."
         )
         second_dims = _dominant_dimension_labels(
             option_dimension_totals.get(second_option, {}), dimensions, limit=2
         )
         second_prob = _probability_phrase(normalized[second_option])
         p3 = (
-            f"However, {second_option} is far from ruled out. "
-            f"The core constraints on the other side come from {second_support_text}. "
-            f"These mainly bite on {_natural_join(second_dims) or 'another set of key dimensions'}, "
-            f"so the counter-scenario still carries about {second_prob} weight."
+            f"That said, {second_option} is still very much alive. The main counter-scenario is constrained by {second_support_text}. "
+            f"Those points mainly run through {_natural_join(second_dims) or 'another key set of dimensions'}, so the alternative scenario still retains roughly {second_prob} likelihood."
         )
 
     dependency_note = _dependency_narrative(evidence_ledger)
     if conflict_notes:
         conflict_text = "; ".join(conflict_notes)
-        p4 = (
-            f"From the evidence structure: {dependency_note} "
-            f"Additional conflicts to monitor: {conflict_text}."
-        )
+        p4 = f"From the evidence structure, {dependency_note} There are also conflict points worth monitoring: {conflict_text}."
     else:
-        p4 = (
-            f"From the evidence structure: {dependency_note} "
-            f"Nothing yet amounts to a strong conflict that would flip the main call."
-        )
+        p4 = f"From the evidence structure, {dependency_note} There is no major conflict yet that clearly overturns the current judgment."
 
     if sensitivity:
         row = sensitivity[0]
         delta = abs(float(row["delta_top_score"]))
         if delta >= 0.20:
             sensitivity_text = (
-                f"On sensitivity: dropping key evidence {row['drop_evidence_id']} "
-                "materially narrows the lead, so this judgment still leans on that main narrative."
+                f"In the sensitivity check, removing key evidence {row['drop_evidence_id']} sharply narrows the current lead, which means the judgment still depends heavily on that main narrative."
             )
         elif delta >= 0.10:
             sensitivity_text = (
-                f"On sensitivity: removing {row['drop_evidence_id']} "
-                "narrows the edge but is unlikely to flip the call immediately."
+                f"In the sensitivity check, removing {row['drop_evidence_id']} narrows the current edge, but it does not immediately flip the result."
             )
         else:
             sensitivity_text = (
-                f"On sensitivity: removing {row['drop_evidence_id']} "
-                "barely moves the overall read; the main conclusion looks relatively robust."
+                f"In the sensitivity check, removing {row['drop_evidence_id']} does not change the overall judgment very much, which suggests the main conclusion is relatively stable."
             )
     else:
-        sensitivity_text = "Not enough valid evidence to rerun sensitivity meaningfully."
+        sensitivity_text = "There is not enough usable evidence for a meaningful sensitivity recalculation right now."
 
     gap = normalized[top_option] - normalized[second_option] if second_option else 0.0
     conclusion = (
-        f"A reasonable read: {top_option} {_lead_descriptor(gap)}; "
-        f"{_confidence_descriptor(normalized[top_option])}."
+        f"A better reading is that {top_option} {_lead_descriptor(gap)}, and {_confidence_descriptor(normalized[top_option])}."
     )
     if second_option is not None and sensitivity:
         watch_dims = _dominant_dimension_labels(
             option_dimension_totals.get(second_option, {}), dimensions, limit=2
         )
         if watch_dims:
-            conclusion += (
-                f" New evidence on {_natural_join(watch_dims)} is most likely to move the call next."
-            )
+            conclusion += f" The most likely things to change the judgment would be new evidence on {_natural_join(watch_dims)}."
     p5 = sensitivity_text + " " + conclusion
 
     paragraphs = [p1, p2]
@@ -653,20 +632,19 @@ def _build_multidim_analysis(
     )
 
     method_overview = (
-        "This question uses a topic-specific rubric rather than a fixed template. "
-        f"Dimensions and weights: {_weights_summary(dimensions)}. "
-        "Each evidence item is scored on these dimensions; contributions combine "
-        "strength factors and correlation penalties."
+        "This question uses a topic-specific rubric rather than a fixed dimension template. The active dimensions and weights are: "
+        f"{_weights_summary(dimensions)}. "
+        "Each evidence row is scored on these dimensions and then converted into contributions using strength factors and correlation penalties."
     )
     design_summary = _rubric_design_summary(dimensions)
     decision_summary = (
-        f"The top-scoring option is {top_option} with normalized score {normalized[top_option]:.3f}."
+        f"The highest-scoring option is {top_option}, with normalized score {normalized[top_option]:.3f}."
         + (
             f" It leads {second_option} by {gap:.3f}."
             if second_option is not None
             else ""
         )
-        + f" The call is mainly driven by {top_support_count} key supporting evidence items."
+        + f" This conclusion is mainly supported by {top_support_count} key positive evidence item{'s' if top_support_count != 1 else ''}."
     )
     reasoning_narrative = _build_reasoning_narrative(
         question=question,
@@ -708,8 +686,7 @@ def _build_multidim_analysis(
                     "label": dim["label"],
                     "assessment": assessment,
                     "analysis": (
-                        f"Net contribution on {dim['label']} {dim_value:+.3f}, assessed as {assessment}. "
-                        f"Key evidence: "
+                        f"Net contribution on {dim['label']} is {dim_value:+.3f}, assessed as {assessment}. Key evidence: "
                         + (", ".join(key_ids) if key_ids else "none.")
                     ),
                 }
@@ -720,26 +697,24 @@ def _build_multidim_analysis(
             delta = float(sensitivity[0]["delta_top_score"])
             if abs(delta) >= 0.20:
                 risk_notes.append(
-                    "Sensitive to one key evidence item; if it fails, the current lead could shrink materially."
+                    "This option is sensitive to a single key evidence row; if that row fails, the current lead may shrink materially."
                 )
         if any(option in note for note in conflict_notes):
-            risk_notes.append(
-                "Strong conflicting evidence for this option; keep monitoring new information."
-            )
+            risk_notes.append("This option has strong conflicting evidence and should be monitored for new information.")
         if not risk_notes:
-            risk_notes.append("No obvious structural risks identified at present.")
+            risk_notes.append("No obvious structural risk is visible at the moment.")
 
         option_analyses.append(
             {
                 "option": option,
                 "position": _position_label(rank_idx),
                 "score_statement": (
-                    f"Raw score {raw_scores[option]:.3f}, normalized score {normalized[option]:.3f}."
+                    f"Raw score {raw_scores[option]:.3f}; normalized score {normalized[option]:.3f}."
                 ),
                 "dimension_analysis": dimension_analysis,
                 "evidence_logic": {
-                    "supporting": support_lines or ["No material supporting evidence found."],
-                    "opposing": oppose_lines or ["No material opposing evidence found."],
+                    "supporting": support_lines or ["No significant positive evidence identified."],
+                    "opposing": oppose_lines or ["No significant opposing evidence identified."],
                 },
                 "risk_note": " ".join(risk_notes),
             }
@@ -753,6 +728,27 @@ def _build_multidim_analysis(
         "reasoning_narrative": reasoning_narrative,
         "option_analyses": option_analyses,
     }
+
+
+def _source_reliability_adjustment(row: Dict[str, Any]) -> float:
+    value = row.get("source_reliability")
+    try:
+        score = float(value)
+    except (TypeError, ValueError):
+        return 1.0
+    return max(0.7, min(1.15, 0.7 + 0.5 * max(0.0, min(1.0, score))))
+
+
+def _source_type_bonus(row: Dict[str, Any]) -> float:
+    source_type = str(row.get("source_type") or "").strip().lower()
+    bonus_map = {
+        "topic_body": 0.96,
+        "market_data": 1.08,
+        "market_structure": 1.03,
+        "macro_sentiment": 1.0,
+        "social_sentiment": 0.94,
+    }
+    return bonus_map.get(source_type, 1.0)
 
 
 def _parse_dimension_scores(
@@ -885,13 +881,15 @@ def run_forecast(payload: Any) -> Dict[str, Any]:
             dependency_penalty = 1.0
 
         sign = 1.0 if stance == "for" else -1.0
-        contribution_abs = quality * strength_factor * dependency_penalty
+        source_adjustment = _source_reliability_adjustment(row) * _source_type_bonus(row)
+        contribution_abs = quality * strength_factor * dependency_penalty * source_adjustment
         signed_contribution = sign * contribution_abs
         dimension_contributions = {
             dim["key"]: float(dim["weight"])
             * feature_values[dim["key"]]
             * strength_factor
             * dependency_penalty
+            * source_adjustment
             * sign
             for dim in dimensions
         }
@@ -917,6 +915,9 @@ def run_forecast(payload: Any) -> Dict[str, Any]:
                 "dependency_penalty": dependency_penalty,
                 "dimension_scores": feature_values,
                 "dimension_contributions": dimension_contributions,
+                "source_type": row.get("source_type"),
+                "source_reliability": row.get("source_reliability"),
+                "source_adjustment": source_adjustment,
                 "contribution": signed_contribution,
                 "abs_contribution": abs(signed_contribution),
             }
@@ -996,6 +997,9 @@ def run_forecast(payload: Any) -> Dict[str, Any]:
                     for key, value in row["dimension_scores"].items()
                 },
                 "source": row["source"],
+                "source_type": row.get("source_type"),
+                "source_reliability": row.get("source_reliability"),
+                "source_adjustment": round(float(row.get("source_adjustment") or 1.0), 6),
             }
             for row in evidence_ledger
         ],

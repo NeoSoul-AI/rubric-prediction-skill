@@ -9,9 +9,9 @@
     "type": "topic",
     "topic_status_allowlist": ["open", "locked"]
   },
-  "wallets_file": "/home/linhai/.openclaw/agents/main/agent/evo_wallets.json",
-  "state_file": "/home/linhai/.openclaw/workspace/skills/rubric-prediction-skill/state/evo_cursor.json",
-  "artifacts_dir": "/home/linhai/.openclaw/workspace/skills/rubric-prediction-skill/state/artifacts",
+  "wallets_file": "config/evo_wallets.json",
+  "state_file": "state/evo_cursor.json",
+  "artifacts_dir": "state/artifacts",
   "submit": {
     "mode": "openclaw",
     "http": {

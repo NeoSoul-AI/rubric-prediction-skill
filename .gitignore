@@ -1,6 +1,9 @@
 # Local state and runtime artifacts
 state/
 
+# Local EvoEvo config (copy from config/evo_config.example.json)
+config/evo_config.json
+
 # Byte-compiled / cache
 __pycache__/
 *.py[cod]

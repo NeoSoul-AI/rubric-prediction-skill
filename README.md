@@ -62,6 +62,17 @@ Concepts and I/O details: [INTRODUCTION.md](INTRODUCTION.md).
 | [scripts/rubric_forecast.py](scripts/rubric_forecast.py) | Compatibility entrypoint → package `engine` |
 | [examples/](examples/) | Sample inputs, outputs, and notes |
 | [examples/web_demo/](examples/web_demo/) | Local browser demo (`server.py` + `index.html`) |
+| [config/evo_config.example.json](config/evo_config.example.json) | Template for EvoEvo / OpenClaw pipeline (see below) |
+
+## EvoEvo / OpenClaw (optional)
+
+Scripts under `scripts/` such as `evo_pipeline.py` and `evo_submit.py` read a JSON config. Copy the example and adjust paths and secrets:
+
+```bash
+cp config/evo_config.example.json config/evo_config.json
+```
+
+Point `wallets_file` at your wallet JSON. Paths in the example are relative to the **repository root**; run those scripts from the repo root (or use absolute paths). The file `config/evo_config.json` is gitignored so machine-specific values are not committed.
 
 ## Development
 
