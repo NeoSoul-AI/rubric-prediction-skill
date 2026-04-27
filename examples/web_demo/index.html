@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rubric Forecast — local demo</title>
+  <style>
+    :root {
+      font-family: system-ui, sans-serif;
+      line-height: 1.45;
+      color: #1a1a1a;
+      background: #f4f4f5;
+    }
+    body { max-width: 56rem; margin: 0 auto; padding: 1rem 1.25rem 2rem; }
+    h1 { font-size: 1.25rem; margin: 0 0 0.5rem; }
+    p.meta { color: #52525b; font-size: 0.9rem; margin: 0 0 1rem; }
+    .row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem; }
+    button {
+      cursor: pointer;
+      padding: 0.4rem 0.75rem;
+      border: 1px solid #d4d4d8;
+      border-radius: 6px;
+      background: #fff;
+      font-size: 0.9rem;
+    }
+    button:hover { background: #fafafa; }
+    button:focus-visible { outline: 2px solid #18181b; outline-offset: 2px; }
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
+    button.primary { background: #18181b; color: #fff; border-color: #18181b; }
+    button.primary:hover { background: #27272a; }
+    label { display: block; font-size: 0.85rem; font-weight: 600; margin: 0.5rem 0 0.25rem; }
+    textarea {
+      width: 100%;
+      min-height: 14rem;
+      box-sizing: border-box;
+      font-family: ui-monospace, monospace;
+      font-size: 0.8rem;
+      padding: 0.6rem;
+      border: 1px solid #d4d4d8;
+      border-radius: 6px;
+      resize: vertical;
+    }
+    pre.out {
+      margin: 0;
+      padding: 0.75rem;
+      background: #18181b;
+      color: #e4e4e7;
+      border-radius: 6px;
+      overflow: auto;
+      max-height: 28rem;
+      font-size: 0.75rem;
+    }
+    .err { color: #b91c1c; margin: 0.5rem 0; font-size: 0.9rem; }
+    .ok { color: #15803d; font-size: 0.85rem; margin: 0.25rem 0; }
+  </style>
+</head>
+<body>
+  <h1>Rubric Forecast — local demo</h1>
+  <p class="meta">
+    Requests go to local <code>/api/forecast</code>. From the repo root, run
+    <code>python examples/web_demo/server.py</code>, then open this page. For local debugging only; do not expose to the public internet.
+  </p>
+
+  <section aria-label="Actions">
+    <div class="row">
+      <button type="button" id="btnSample">Load sample input</button>
+      <button type="button" id="btnRun" class="primary">Run forecast</button>
+    </div>
+  </section>
+
+  <label for="inputJson">Input JSON (must match the SKILL input contract)</label>
+  <textarea id="inputJson" spellcheck="false" aria-label="forecast input json"></textarea>
+
+  <label for="outputRegion">Output</label>
+  <p id="statusLine" class="ok" aria-live="polite"></p>
+  <p id="errorLine" class="err" role="alert"></p>
+  <pre id="outputJson" class="out" aria-label="forecast output json"></pre>
+
+  <script>
+    'use strict'
+    const inputEl = document.getElementById('inputJson')
+    const outEl = document.getElementById('outputJson')
+    const errEl = document.getElementById('errorLine')
+    const statEl = document.getElementById('statusLine')
+    const btnSample = document.getElementById('btnSample')
+    const btnRun = document.getElementById('btnRun')
+
+    /** Clears status and error messages. */
+    function clearMsgs() {
+      errEl.textContent = ''
+      statEl.textContent = ''
+    }
+
+    btnSample.addEventListener('click', async () => {
+      clearMsgs()
+      btnSample.disabled = true
+      try {
+        const res = await fetch('/sample-input')
+        if (!res.ok) throw new Error('Failed to load sample (HTTP ' + res.status + ')')
+        const data = await res.json()
+        inputEl.value = JSON.stringify(data, null, 2)
+        statEl.textContent = 'Sample input loaded.'
+      } catch (e) {
+        errEl.textContent = String(e.message || e)
+        outEl.textContent = ''
+      } finally {
+        btnSample.disabled = false
+      }
+    })
+
+    btnRun.addEventListener('click', async () => {
+      clearMsgs()
+      outEl.textContent = ''
+      let payload
+      try {
+        payload = JSON.parse(inputEl.value || '{}')
+      } catch (e) {
+        errEl.textContent = 'Input is not valid JSON: ' + (e.message || e)
+        return
+      }
+      btnRun.disabled = true
+      try {
+        const res = await fetch('/api/forecast', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json; charset=utf-8' },
+          body: JSON.stringify(payload),
+        })
+        const text = await res.text()
+        let data
+        try {
+          data = JSON.parse(text)
+        } catch (_) {
+          errEl.textContent = 'Response is not JSON'
+          outEl.textContent = text
+          return
+        }
+        if (!res.ok) {
+          errEl.textContent = 'HTTP ' + res.status
+        }
+        outEl.textContent = JSON.stringify(data, null, 2)
+        statEl.textContent =
+          data.status === 'ok'
+            ? 'status: ok · final_answer: ' + String(data.final_answer)
+            : 'status: ' + String(data.status)
+      } catch (e) {
+        errEl.textContent = 'Request failed (is the server running?) ' + (e.message || e)
+      } finally {
+        btnRun.disabled = false
+      }
+    })
+  </script>
+</body>
+</html>
