@@ -1,0 +1,236 @@
+{
+  "status": "ok",
+  "final_answer": "Returns to normal by Apr 30",
+  "raw_option_scores": [
+    {
+      "option": "Returns to normal by Apr 30",
+      "score": 2.332
+    },
+    {
+      "option": "Does not return to normal by Apr 30",
+      "score": 1.90912
+    }
+  ],
+  "normalized_scores": [
+    {
+      "option": "Returns to normal by Apr 30",
+      "score": 0.604172
+    },
+    {
+      "option": "Does not return to normal by Apr 30",
+      "score": 0.395828
+    }
+  ],
+  "rubric_dimensions": [
+    {
+      "key": "market-conviction",
+      "label": "市场定价强度",
+      "weight": 0.28,
+      "why_it_matters": "高成交量下接近五五开的价格说明市场本身处于真实分歧状态，应被当作一条一阶信号。"
+    },
+    {
+      "key": "recovery-momentum",
+      "label": "恢复动能",
+      "weight": 0.3,
+      "why_it_matters": "这道题是短窗口恢复题，近期船流是否持续回升，是判断能否在月底前恢复的核心。"
+    },
+    {
+      "key": "deescalation-durability",
+      "label": "缓和持续性",
+      "weight": 0.22,
+      "why_it_matters": "若停火与谈判只能短暂维持，恢复趋势很容易再次中断。"
+    },
+    {
+      "key": "threshold-feasibility",
+      "label": "达标可行性",
+      "weight": 0.2,
+      "why_it_matters": "这题不是判断是否改善，而是判断能否在指定日期前达到明确阈值，因此门槛可达性必须单独评估。"
+    }
+  ],
+  "normalization_temperature": 1.0,
+  "evidence_ledger": [
+    {
+      "id": "e1",
+      "supports_option": "Returns to normal by Apr 30",
+      "stance": "for",
+      "strength": "medium",
+      "quality": 0.6184,
+      "contribution": 0.6184,
+      "dimension_scores": {
+        "market-conviction": 0.86,
+        "recovery-momentum": 0.56,
+        "deescalation-durability": 0.48,
+        "threshold-feasibility": 0.52
+      },
+      "source": "https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-april-30"
+    },
+    {
+      "id": "e2",
+      "supports_option": "Returns to normal by Apr 30",
+      "stance": "for",
+      "strength": "strong",
+      "quality": 0.7,
+      "contribution": 1.12,
+      "dimension_scores": {
+        "market-conviction": 0.58,
+        "recovery-momentum": 0.88,
+        "deescalation-durability": 0.68,
+        "threshold-feasibility": 0.62
+      },
+      "source": "https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-april-30"
+    },
+    {
+      "id": "e3",
+      "supports_option": "Does not return to normal by Apr 30",
+      "stance": "for",
+      "strength": "strong",
+      "quality": 0.6224,
+      "contribution": 0.99584,
+      "dimension_scores": {
+        "market-conviction": 0.54,
+        "recovery-momentum": 0.34,
+        "deescalation-durability": 0.86,
+        "threshold-feasibility": 0.9
+      },
+      "source": "https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-april-30"
+    },
+    {
+      "id": "e4",
+      "supports_option": "Returns to normal by Apr 30",
+      "stance": "for",
+      "strength": "medium",
+      "quality": 0.5936,
+      "contribution": 0.5936,
+      "dimension_scores": {
+        "market-conviction": 0.46,
+        "recovery-momentum": 0.62,
+        "deescalation-durability": 0.74,
+        "threshold-feasibility": 0.58
+      },
+      "source": "https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-april-30"
+    },
+    {
+      "id": "e5",
+      "supports_option": "Does not return to normal by Apr 30",
+      "stance": "for",
+      "strength": "strong",
+      "quality": 0.5708,
+      "contribution": 0.91328,
+      "dimension_scores": {
+        "market-conviction": 0.48,
+        "recovery-momentum": 0.3,
+        "deescalation-durability": 0.72,
+        "threshold-feasibility": 0.94
+      },
+      "source": "https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-april-30"
+    }
+  ],
+  "conflict_resolution_notes": [],
+  "sensitivity": [
+    {
+      "drop_evidence_id": "e2",
+      "delta_top_score": -0.271721
+    }
+  ],
+  "reasoning_text": "这道题真正的分歧点，落在恢复动能、市场定价强度和缓和持续性。恢复动能之所以关键，是因为这道题是短窗口恢复题，近期船流是否持续回升，是判断能否在月底前恢复的核心。市场定价强度之所以关键，是因为高成交量下接近五五开的价格说明市场本身处于真实分歧状态，应被当作一条一阶信号。\n\n眼下更像主场景的是 Returns to normal by Apr 30。把判断推向这一边的主线证据是 e2：Recent upticks to 20 ships in the last 24 hours and multi-week weekend highs, together with a condi...；e1：Polymarket event page currently implies roughly a 53.5% chance of traffic returning to normal and a...。它们共同强化了恢复动能和市场定价强度，让这条叙事成为当前大约六成左右的主路径。\n\n不过，Does not return to normal by Apr 30 也远没有出局。另一边的核心约束来自 e3：Despite the rebound, throughput remains only 14.6% of normal, war-risk insurance is still about 16x...；e5：The market resolves on a strict 7-day moving average threshold of at least 60 ships on April 30, an...。这些信息主要卡在达标可行性和缓和持续性，所以反场景仍然保留了大约四成左右的空间。\n\n从证据结构看，本次证据中未发现需要额外相关性惩罚的重复来源。 暂时还没有出现足以把主判断扭转过去的强冲突。\n\n再看敏感性检验，拿掉关键证据 e2 后，当前领先一侧的优势会明显收窄，说明这套判断还比较依赖这条主线叙事。 所以更合适的读法是：Returns to normal by Apr 30 有一定优势，结论已经偏向一侧，但分歧依然不小。 接下来真正可能改变判断的，会是达标可行性和缓和持续性上的新增证据。",
+  "rubric_multidim_analysis": {
+    "question": "Will Strait of Hormuz traffic return to normal by April 30, 2026?",
+    "rubric_design_summary": "本题采用的话题专属 Rubric 维度为：市场定价强度：高成交量下接近五五开的价格说明市场本身处于真实分歧状态，应被当作一条一阶信号。；恢复动能：这道题是短窗口恢复题，近期船流是否持续回升，是判断能否在月底前恢复的核心。；缓和持续性：若停火与谈判只能短暂维持，恢复趋势很容易再次中断。；达标可行性：这题不是判断是否改善，而是判断能否在指定日期前达到明确阈值，因此门槛可达性必须单独评估。",
+    "method_overview": "本题使用话题专属 Rubric，而非固定维度模板。当前采用的维度及权重为：市场定价强度28%、恢复动能30%、缓和持续性22%、达标可行性20%。每条证据在这些维度上打分后，再结合强度系数与相关性惩罚计算贡献。",
+    "decision_summary": "当前最高分选项是 Returns to normal by Apr 30，归一化得分为 0.604。 相比第二名 Does not return to normal by Apr 30，领先 0.208。 该结论主要由 3 条关键正向证据推动。",
+    "reasoning_narrative": "这道题真正的分歧点，落在恢复动能、市场定价强度和缓和持续性。恢复动能之所以关键，是因为这道题是短窗口恢复题，近期船流是否持续回升，是判断能否在月底前恢复的核心。市场定价强度之所以关键，是因为高成交量下接近五五开的价格说明市场本身处于真实分歧状态，应被当作一条一阶信号。\n\n眼下更像主场景的是 Returns to normal by Apr 30。把判断推向这一边的主线证据是 e2：Recent upticks to 20 ships in the last 24 hours and multi-week weekend highs, together with a condi...；e1：Polymarket event page currently implies roughly a 53.5% chance of traffic returning to normal and a...。它们共同强化了恢复动能和市场定价强度，让这条叙事成为当前大约六成左右的主路径。\n\n不过，Does not return to normal by Apr 30 也远没有出局。另一边的核心约束来自 e3：Despite the rebound, throughput remains only 14.6% of normal, war-risk insurance is still about 16x...；e5：The market resolves on a strict 7-day moving average threshold of at least 60 ships on April 30, an...。这些信息主要卡在达标可行性和缓和持续性，所以反场景仍然保留了大约四成左右的空间。\n\n从证据结构看，本次证据中未发现需要额外相关性惩罚的重复来源。 暂时还没有出现足以把主判断扭转过去的强冲突。\n\n再看敏感性检验，拿掉关键证据 e2 后，当前领先一侧的优势会明显收窄，说明这套判断还比较依赖这条主线叙事。 所以更合适的读法是：Returns to normal by Apr 30 有一定优势，结论已经偏向一侧，但分歧依然不小。 接下来真正可能改变判断的，会是达标可行性和缓和持续性上的新增证据。",
+    "option_analyses": [
+      {
+        "option": "Returns to normal by Apr 30",
+        "position": "领先",
+        "score_statement": "原始分 2.332，归一化得分 0.604。",
+        "dimension_analysis": [
+          {
+            "dimension": "market-conviction",
+            "label": "市场定价强度",
+            "assessment": "正向驱动",
+            "analysis": "市场定价强度维度净贡献+0.629，判断为正向驱动。关键证据：e2, e1"
+          },
+          {
+            "dimension": "recovery-momentum",
+            "label": "恢复动能",
+            "assessment": "正向驱动",
+            "analysis": "恢复动能维度净贡献+0.776，判断为正向驱动。关键证据：e2, e4"
+          },
+          {
+            "dimension": "deescalation-durability",
+            "label": "缓和持续性",
+            "assessment": "正向驱动",
+            "analysis": "缓和持续性维度净贡献+0.508，判断为正向驱动。关键证据：e2, e4"
+          },
+          {
+            "dimension": "threshold-feasibility",
+            "label": "达标可行性",
+            "assessment": "正向驱动",
+            "analysis": "达标可行性维度净贡献+0.418，判断为正向驱动。关键证据：e2, e4"
+          }
+        ],
+        "evidence_logic": {
+          "supporting": [
+            "e2（支持，贡献+1.120）: Recent upticks to 20 ships in the last 24 hours and multi-week weekend highs, together with a conditional two-week U.S.-Iran ceasefire launched April 7, indicate near-term recovery momentum.",
+            "e1（支持，贡献+0.618）: Polymarket event page currently implies roughly a 53.5% chance of traffic returning to normal and around $4.4M traded, showing a liquid but still divided market with a slight lean toward recovery."
+          ],
+          "opposing": [
+            "未发现显著反向证据。"
+          ]
+        },
+        "risk_note": "对单条关键证据较敏感；若该证据失效，当前领先优势可能明显下降。"
+      },
+      {
+        "option": "Does not return to normal by Apr 30",
+        "position": "次优",
+        "score_statement": "原始分 1.909，归一化得分 0.396。",
+        "dimension_analysis": [
+          {
+            "dimension": "market-conviction",
+            "label": "市场定价强度",
+            "assessment": "正向驱动",
+            "analysis": "市场定价强度维度净贡献+0.457，判断为正向驱动。关键证据：e3, e5"
+          },
+          {
+            "dimension": "recovery-momentum",
+            "label": "恢复动能",
+            "assessment": "正向驱动",
+            "analysis": "恢复动能维度净贡献+0.307，判断为正向驱动。关键证据：e3, e5"
+          },
+          {
+            "dimension": "deescalation-durability",
+            "label": "缓和持续性",
+            "assessment": "正向驱动",
+            "analysis": "缓和持续性维度净贡献+0.556，判断为正向驱动。关键证据：e3, e5"
+          },
+          {
+            "dimension": "threshold-feasibility",
+            "label": "达标可行性",
+            "assessment": "正向驱动",
+            "analysis": "达标可行性维度净贡献+0.589，判断为正向驱动。关键证据：e5, e3"
+          }
+        ],
+        "evidence_logic": {
+          "supporting": [
+            "e3（支持，贡献+0.996）: Despite the rebound, throughput remains only 14.6% of normal, war-risk insurance is still about 16x normal, and Brent crude is near $122, all of which point to a still-fragile operating environment.",
+            "e5（支持，贡献+0.913）: The market resolves on a strict 7-day moving average threshold of at least 60 ships on April 30, and current traffic is still far below that benchmark, making full normalization a high bar even if conditions improve."
+          ],
+          "opposing": [
+            "未发现显著反向证据。"
+          ]
+        },
+        "risk_note": "当前未发现明显结构性风险。"
+      }
+    ]
+  },
+  "monitoring_signals": [],
+  "assumptions": [],
+  "engine": {
+    "name": "rubric-forecast-engine",
+    "version": "2.2.0",
+    "strict_decoupling": true,
+    "computed_by": "scripts/rubric_forecast.py",
+    "input_sha256": "36a9b130e8715a1818b997b3cb24e224e27ec214cb04578bc3af5a998342464b"
+  }
+}

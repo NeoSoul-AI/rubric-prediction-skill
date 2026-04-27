@@ -1,0 +1,53 @@
+{
+  "question": "Will product Z ship before 2026-08-01?",
+  "options": ["yes", "no"],
+  "resolution_rule": "Official release note before 2026-08-01 00:00:00-07:00 counts as yes.",
+  "rubric_dimensions": [
+    {
+      "key": "execution-readiness",
+      "label": "执行就绪度",
+      "weight": 0.4,
+      "why_it_matters": "产品是否达到可发布状态。"
+    },
+    {
+      "key": "organizational-commitment",
+      "label": "组织承诺度",
+      "weight": 0.35,
+      "why_it_matters": "管理层是否持续推动上线。"
+    },
+    {
+      "key": "timeline-pressure",
+      "label": "时间窗口压力",
+      "weight": 0.25,
+      "why_it_matters": "截止时间越近，延期风险权重越高。"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "e1",
+      "claim": "Supplier confirms pilot run",
+      "source": "supplier-report",
+      "supports_option": "yes",
+      "stance": "for",
+      "strength": "strong",
+      "dimension_scores": {
+        "execution-readiness": 0.85,
+        "organizational-commitment": 0.65,
+        "timeline-pressure": 0.7
+      }
+    },
+    {
+      "id": "e2",
+      "claim": "QA bug backlog still high",
+      "source": "internal-qa",
+      "supports_option": "yes",
+      "stance": "against",
+      "strength": "medium",
+      "dimension_scores": {
+        "execution-readiness": 0.55,
+        "organizational-commitment": 0.5,
+        "timeline-pressure": 0.8
+      }
+    }
+  ]
+}

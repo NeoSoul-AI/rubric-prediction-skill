@@ -1,0 +1,7 @@
+# Local state and artifacts
+state/
+
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+.DS_Store
