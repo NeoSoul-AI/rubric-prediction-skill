@@ -39,19 +39,18 @@
 
 ## Input Artifact
 
-- Input file: [polymarket_hormuz_geopolitics_input.json](/Users/meng/Downloads/prediction_skill/lite/examples/polymarket_hormuz_geopolitics_input.json)
+- Input file: `examples/polymarket_hormuz_geopolitics_input.json`
 
 ## Execution
 
 ```bash
-python3 /Users/meng/Downloads/prediction_skill/lite/scripts/rubric_forecast.py \
-  --input /Users/meng/Downloads/prediction_skill/lite/examples/polymarket_hormuz_geopolitics_input.json \
-  --output /Users/meng/Downloads/prediction_skill/lite/examples/polymarket_hormuz_geopolitics_output.json
+python3 scripts/rubric_forecast.py \
+  --input examples/polymarket_hormuz_geopolitics_input.json \
+  --output examples/polymarket_hormuz_geopolitics_output.json
 ```
 
 - Numeric aggregation, weighting, normalization, and sensitivity analysis were all computed by the script engine.
-- Engine version: `2.2.0`
-- `input_sha256`: `36a9b130e8715a1818b997b3cb24e224e27ec214cb04578bc3af5a998342464b`
+- See `engine.version` and `engine.input_sha256` in the output JSON for the exact engine version and input hash of this sample.
 
 ## Output Summary
 
@@ -64,4 +63,4 @@ python3 /Users/meng/Downloads/prediction_skill/lite/scripts/rubric_forecast.py \
 
 ## Output Artifact
 
-- Output file: [polymarket_hormuz_geopolitics_output.json](/Users/meng/Downloads/prediction_skill/lite/examples/polymarket_hormuz_geopolitics_output.json)
+- Output file: `examples/polymarket_hormuz_geopolitics_output.json`

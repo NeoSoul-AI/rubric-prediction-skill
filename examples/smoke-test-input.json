@@ -1,0 +1,53 @@
+{
+  "question": "Will product Z ship before 2026-08-01?",
+  "options": ["yes", "no"],
+  "resolution_rule": "Official release note before 2026-08-01 00:00:00-07:00 counts as yes.",
+  "rubric_dimensions": [
+    {
+      "key": "execution-readiness",
+      "label": "Execution readiness",
+      "weight": 0.4,
+      "why_it_matters": "Whether the product is near shippable quality."
+    },
+    {
+      "key": "organizational-commitment",
+      "label": "Organizational commitment",
+      "weight": 0.35,
+      "why_it_matters": "Whether leadership is actively driving a launch."
+    },
+    {
+      "key": "timeline-pressure",
+      "label": "Timeline pressure",
+      "weight": 0.25,
+      "why_it_matters": "Closer deadlines increase the weight of slippage risk."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "e1",
+      "claim": "Supplier confirms pilot run",
+      "source": "supplier-report",
+      "supports_option": "yes",
+      "stance": "for",
+      "strength": "strong",
+      "dimension_scores": {
+        "execution-readiness": 0.85,
+        "organizational-commitment": 0.65,
+        "timeline-pressure": 0.7
+      }
+    },
+    {
+      "id": "e2",
+      "claim": "QA bug backlog still high",
+      "source": "internal-qa",
+      "supports_option": "yes",
+      "stance": "against",
+      "strength": "medium",
+      "dimension_scores": {
+        "execution-readiness": 0.55,
+        "organizational-commitment": 0.5,
+        "timeline-pressure": 0.8
+      }
+    }
+  ]
+}

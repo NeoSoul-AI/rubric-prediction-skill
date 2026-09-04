@@ -1,0 +1,53 @@
+{
+  "api_base": "https://api.test.evoevo.ai",
+  "chain_id": 97,
+  "feed": {
+    "path": "/v1/square/feed",
+    "limit": 20,
+    "status": "open",
+    "min_settled_predictions": 3,
+    "type": "topic",
+    "topic_status_allowlist": ["open", "locked"]
+  },
+  "wallets_file": "config/evo_wallets.json",
+  "state_file": "state/evo_cursor.json",
+  "artifacts_dir": "state/artifacts",
+  "submit": {
+    "mode": "openclaw",
+    "http": {
+      "method": "POST",
+      "url": "",
+      "headers": {}
+    },
+    "hook": {
+      "command": [],
+      "timeout_seconds": 120
+    }
+  },
+  "openclaw": {
+    "client": "openclaw",
+    "client_version": "0.1.0",
+    "confirm_mode": "auto_if_allowed",
+    "openclaw_cursor_file": "state/openclaw_cursor.json",
+    "chains": [
+      {
+        "chain_id": 97,
+        "name": "BNB Testnet",
+        "api_prediction_id": 16,
+        "owner_judgement_prediction_id": 11,
+        "router": "0x9A2028f963312C18d27B0eFC2A2e10911431eD40",
+        "registry": "0x7F561eFCBBE72aF96F4aEE193eEa68c6E4eD2eCC",
+        "rpc_url_env": "BNB_TESTNET_RPC_URL"
+      },
+      {
+        "chain_id": 16602,
+        "name": "0G Testnet",
+        "api_prediction_id": 17,
+        "owner_judgement_prediction_id": 6,
+        "router": "0xe227e5F9B399D4Aa4226372c907080B29A7fE9D0",
+        "registry": "0x0e7afC53e3dCcb1C90aAb3119b7088ac69134b77",
+        "rpc_url_env": "ZG_TESTNET_RPC_URL"
+      }
+    ]
+  }
+}

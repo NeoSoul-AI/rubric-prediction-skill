@@ -189,7 +189,7 @@ Run sensitivity at least once:
   "assumptions": [],
   "engine": {
     "name": "rubric-forecast-engine",
-    "version": "2.2.0",
+    "version": "2.3.0",
     "strict_decoupling": true,
     "computed_by": "rubric_forecast.engine",
     "input_sha256": "..."
@@ -206,7 +206,7 @@ Run sensitivity at least once:
   "next_required_inputs": [],
   "engine": {
     "name": "rubric-forecast-engine",
-    "version": "2.0.0",
+    "version": "2.3.0",
     "strict_decoupling": true,
     "computed_by": "rubric_forecast.engine",
     "input_sha256": null
