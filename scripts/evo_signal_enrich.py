@@ -125,7 +125,7 @@ def _binary_options(topic: Dict[str, Any]) -> Tuple[str, str]:
 
 
 def tavily_search(topic: Dict[str, Any], prediction: Optional[Dict[str, Any]], topic_type: str) -> Tuple[List[Dict[str, Any]], List[str], Dict[str, Any]]:
-    key = os.environ.get("TAVILY_API_KEY") or "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"
+    key = os.environ.get("TAVILY_API_KEY", "").strip()
     notes: List[str] = []
     diagnostics: Dict[str, Any] = {"provider": "tavily", "query": None, "results": []}
     if not key:
