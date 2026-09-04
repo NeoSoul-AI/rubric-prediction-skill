@@ -15,43 +15,42 @@
 
 ## Rubric Design
 
-- `市场定价强度` 28%
-  用来吸收高成交量下的市场共识与分歧信号。
-- `恢复动能` 30%
-  这题是短窗口恢复题，最近几天船流是否持续改善是核心变量。
-- `缓和持续性` 22%
-  停火和谈判如果只能维持很短时间，恢复趋势容易被打断。
-- `达标可行性` 20%
-  这题不是“是否好转”，而是“是否在月底前达到明确阈值”，所以必须单独评估门槛能否被跨过。
+- `Market conviction` 28%  
+  Captures consensus vs. disagreement signals when volume is high.
+- `Recovery momentum` 30%  
+  This is a short-window recovery question; whether ship traffic keeps improving over recent days is the core variable.
+- `De-escalation durability` 22%  
+  If ceasefires and talks only hold briefly, the recovery trend is easy to interrupt.
+- `Threshold feasibility` 20%  
+  The question is not merely “getting better” but “hitting a clear threshold by month-end,” so whether the bar can be crossed must be assessed on its own.
 
 ## Evidence Structuring
 
-- `e1` 支持 `Returns to normal by Apr 30`
-  市场价格约 53.5%，成交约 `$4.4M`，说明市场略偏恢复，但仍然分歧明显。
-- `e2` 支持 `Returns to normal by Apr 30`
-  最近 24 小时回升到 20 艘，周末量创多周高点，叠加 4 月 7 日启动的两周停火，构成“恢复动能”主线。
-- `e3` 支持 `Does not return to normal by Apr 30`
-  当前吞吐量仍只有常态的 14.6%，战争保险约为常态 16 倍，油价高位，说明运行环境仍然脆弱。
-- `e4` 支持 `Returns to normal by Apr 30`
-  4 月 10 日开启谈判，停火窗口大约覆盖两周，意味着月底前仍有情绪与实际流量继续改善的路径。
-- `e5` 支持 `Does not return to normal by Apr 30`
-  裁决要求 4 月 30 日时 `7-day moving average >= 60`，当前距离阈值仍远，说明“达标可行性”是反方主约束。
+- `e1` supports `Returns to normal by Apr 30`  
+  Market price ~53.5%, volume ~`$4.4M`, indicating a slight lean toward recovery but still clear disagreement.
+- `e2` supports `Returns to normal by Apr 30`  
+  Uptick to 20 ships in the last 24 hours, weekend volumes at multi-week highs, plus the two-week ceasefire starting April 7, form the main “recovery momentum” line.
+- `e3` supports `Does not return to normal by Apr 30`  
+  Throughput still only ~14.6% of normal, war-risk insurance ~16× normal, oil elevated—operating conditions remain fragile.
+- `e4` supports `Returns to normal by Apr 30`  
+  Talks start April 10; the ceasefire window spans ~two weeks, leaving a path for sentiment and actual flows to improve before month-end.
+- `e5` supports `Does not return to normal by Apr 30`  
+  Resolution requires `7-day moving average >= 60` on April 30; traffic is still far from that bar, so “threshold feasibility” is the main constraint for the negative case.
 
 ## Input Artifact
 
-- Input file: [polymarket_hormuz_geopolitics_input.json](/Users/meng/Downloads/prediction_skill/lite/examples/polymarket_hormuz_geopolitics_input.json)
+- Input file: `examples/polymarket_hormuz_geopolitics_input.json`
 
 ## Execution
 
 ```bash
-python3 /Users/meng/Downloads/prediction_skill/lite/scripts/rubric_forecast.py \
-  --input /Users/meng/Downloads/prediction_skill/lite/examples/polymarket_hormuz_geopolitics_input.json \
-  --output /Users/meng/Downloads/prediction_skill/lite/examples/polymarket_hormuz_geopolitics_output.json
+python3 scripts/rubric_forecast.py \
+  --input examples/polymarket_hormuz_geopolitics_input.json \
+  --output examples/polymarket_hormuz_geopolitics_output.json
 ```
 
 - Numeric aggregation, weighting, normalization, and sensitivity analysis were all computed by the script engine.
-- Engine version: `2.2.0`
-- `input_sha256`: `36a9b130e8715a1818b997b3cb24e224e27ec214cb04578bc3af5a998342464b`
+- See `engine.version` and `engine.input_sha256` in the output JSON for the exact engine version and input hash of this sample.
 
 ## Output Summary
 
@@ -64,4 +63,4 @@ python3 /Users/meng/Downloads/prediction_skill/lite/scripts/rubric_forecast.py \
 
 ## Output Artifact
 
-- Output file: [polymarket_hormuz_geopolitics_output.json](/Users/meng/Downloads/prediction_skill/lite/examples/polymarket_hormuz_geopolitics_output.json)
+- Output file: `examples/polymarket_hormuz_geopolitics_output.json`

@@ -24,27 +24,27 @@
   "rubric_dimensions": [
     {
       "key": "market-conviction",
-      "label": "市场定价强度",
+      "label": "Market conviction",
       "weight": 0.28,
-      "why_it_matters": "高成交量下接近五五开的价格说明市场本身处于真实分歧状态，应被当作一条一阶信号。"
+      "why_it_matters": "High volume with prices near 50/50 reflects genuine market disagreement and should be treated as a first-order signal."
     },
     {
       "key": "recovery-momentum",
-      "label": "恢复动能",
+      "label": "Recovery momentum",
       "weight": 0.3,
-      "why_it_matters": "这道题是短窗口恢复题，近期船流是否持续回升，是判断能否在月底前恢复的核心。"
+      "why_it_matters": "This is a short-window recovery question; whether recent ship traffic keeps improving is central to normalization by month-end."
     },
     {
       "key": "deescalation-durability",
-      "label": "缓和持续性",
+      "label": "De-escalation durability",
       "weight": 0.22,
-      "why_it_matters": "若停火与谈判只能短暂维持，恢复趋势很容易再次中断。"
+      "why_it_matters": "If ceasefires and talks only hold briefly, the recovery trend can easily stall again."
     },
     {
       "key": "threshold-feasibility",
-      "label": "达标可行性",
+      "label": "Threshold feasibility",
       "weight": 0.2,
-      "why_it_matters": "这题不是判断是否改善，而是判断能否在指定日期前达到明确阈值，因此门槛可达性必须单独评估。"
+      "why_it_matters": "The question is not merely whether things improve but whether a clear threshold is met by the deadline, so reachability of the bar must be assessed on its own."
     }
   ],
   "normalization_temperature": 1.0,
@@ -62,7 +62,10 @@
         "deescalation-durability": 0.48,
         "threshold-feasibility": 0.52
       },
-      "source": "https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-april-30"
+      "source": "https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-april-30",
+      "source_type": null,
+      "source_reliability": null,
+      "source_adjustment": 1.0
     },
     {
       "id": "e2",
@@ -77,7 +80,10 @@
         "deescalation-durability": 0.68,
         "threshold-feasibility": 0.62
       },
-      "source": "https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-april-30"
+      "source": "https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-april-30",
+      "source_type": null,
+      "source_reliability": null,
+      "source_adjustment": 1.0
     },
     {
       "id": "e3",
@@ -92,7 +98,10 @@
         "deescalation-durability": 0.86,
         "threshold-feasibility": 0.9
       },
-      "source": "https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-april-30"
+      "source": "https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-april-30",
+      "source_type": null,
+      "source_reliability": null,
+      "source_adjustment": 1.0
     },
     {
       "id": "e4",
@@ -107,7 +116,10 @@
         "deescalation-durability": 0.74,
         "threshold-feasibility": 0.58
       },
-      "source": "https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-april-30"
+      "source": "https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-april-30",
+      "source_type": null,
+      "source_reliability": null,
+      "source_adjustment": 1.0
     },
     {
       "id": "e5",
@@ -122,7 +134,10 @@
         "deescalation-durability": 0.72,
         "threshold-feasibility": 0.94
       },
-      "source": "https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-april-30"
+      "source": "https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-april-30",
+      "source_type": null,
+      "source_reliability": null,
+      "source_adjustment": 1.0
     }
   ],
   "conflict_resolution_notes": [],
@@ -132,95 +147,95 @@
       "delta_top_score": -0.271721
     }
   ],
-  "reasoning_text": "这道题真正的分歧点，落在恢复动能、市场定价强度和缓和持续性。恢复动能之所以关键，是因为这道题是短窗口恢复题，近期船流是否持续回升，是判断能否在月底前恢复的核心。市场定价强度之所以关键，是因为高成交量下接近五五开的价格说明市场本身处于真实分歧状态，应被当作一条一阶信号。\n\n眼下更像主场景的是 Returns to normal by Apr 30。把判断推向这一边的主线证据是 e2：Recent upticks to 20 ships in the last 24 hours and multi-week weekend highs, together with a condi...；e1：Polymarket event page currently implies roughly a 53.5% chance of traffic returning to normal and a...。它们共同强化了恢复动能和市场定价强度，让这条叙事成为当前大约六成左右的主路径。\n\n不过，Does not return to normal by Apr 30 也远没有出局。另一边的核心约束来自 e3：Despite the rebound, throughput remains only 14.6% of normal, war-risk insurance is still about 16x...；e5：The market resolves on a strict 7-day moving average threshold of at least 60 ships on April 30, an...。这些信息主要卡在达标可行性和缓和持续性，所以反场景仍然保留了大约四成左右的空间。\n\n从证据结构看，本次证据中未发现需要额外相关性惩罚的重复来源。 暂时还没有出现足以把主判断扭转过去的强冲突。\n\n再看敏感性检验，拿掉关键证据 e2 后，当前领先一侧的优势会明显收窄，说明这套判断还比较依赖这条主线叙事。 所以更合适的读法是：Returns to normal by Apr 30 有一定优势，结论已经偏向一侧，但分歧依然不小。 接下来真正可能改变判断的，会是达标可行性和缓和持续性上的新增证据。",
+  "reasoning_text": "The main disagreement in this question runs through Recovery momentum, Market conviction, and De-escalation durability. Recovery momentum matters because This is a short-window recovery question; whether recent ship traffic keeps improving is central to normalization by month-end. Market conviction matters because High volume with prices near 50/50 reflects genuine market disagreement and should be treated as a first-order signal.\n\nRight now, the leading scenario is Returns to normal by Apr 30. The main evidence pushing the judgment in that direction is e2: Recent upticks to 20 ships in the last 24 hours and multi-week weekend highs, together with a condi...; e1: Polymarket event page currently implies roughly a 53.5% chance of traffic returning to normal and a.... Together, those points strengthen Recovery momentum and Market conviction, putting the current likelihood at roughly around 60%.\n\nThat said, Does not return to normal by Apr 30 is still very much alive. The main counter-scenario is constrained by e3: Despite the rebound, throughput remains only 14.6% of normal, war-risk insurance is still about 16x...; e5: The market resolves on a strict 7-day moving average threshold of at least 60 ships on April 30, an.... Those points mainly run through Threshold feasibility and De-escalation durability, so the alternative scenario still retains roughly around the low 40s likelihood.\n\nFrom the evidence structure, No duplicate-source pattern required an extra correlation penalty in this evidence set. There is no major conflict yet that clearly overturns the current judgment.\n\nIn the sensitivity check, removing key evidence e2 sharply narrows the current lead, which means the judgment still depends heavily on that main narrative. A better reading is that Returns to normal by Apr 30 has a meaningful edge, and the conclusion leans one way, but disagreement is still material. The most likely things to change the judgment would be new evidence on Threshold feasibility and De-escalation durability.",
   "rubric_multidim_analysis": {
     "question": "Will Strait of Hormuz traffic return to normal by April 30, 2026?",
-    "rubric_design_summary": "本题采用的话题专属 Rubric 维度为：市场定价强度：高成交量下接近五五开的价格说明市场本身处于真实分歧状态，应被当作一条一阶信号。；恢复动能：这道题是短窗口恢复题，近期船流是否持续回升，是判断能否在月底前恢复的核心。；缓和持续性：若停火与谈判只能短暂维持，恢复趋势很容易再次中断。；达标可行性：这题不是判断是否改善，而是判断能否在指定日期前达到明确阈值，因此门槛可达性必须单独评估。",
-    "method_overview": "本题使用话题专属 Rubric，而非固定维度模板。当前采用的维度及权重为：市场定价强度28%、恢复动能30%、缓和持续性22%、达标可行性20%。每条证据在这些维度上打分后，再结合强度系数与相关性惩罚计算贡献。",
-    "decision_summary": "当前最高分选项是 Returns to normal by Apr 30，归一化得分为 0.604。 相比第二名 Does not return to normal by Apr 30，领先 0.208。 该结论主要由 3 条关键正向证据推动。",
-    "reasoning_narrative": "这道题真正的分歧点，落在恢复动能、市场定价强度和缓和持续性。恢复动能之所以关键，是因为这道题是短窗口恢复题，近期船流是否持续回升，是判断能否在月底前恢复的核心。市场定价强度之所以关键，是因为高成交量下接近五五开的价格说明市场本身处于真实分歧状态，应被当作一条一阶信号。\n\n眼下更像主场景的是 Returns to normal by Apr 30。把判断推向这一边的主线证据是 e2：Recent upticks to 20 ships in the last 24 hours and multi-week weekend highs, together with a condi...；e1：Polymarket event page currently implies roughly a 53.5% chance of traffic returning to normal and a...。它们共同强化了恢复动能和市场定价强度，让这条叙事成为当前大约六成左右的主路径。\n\n不过，Does not return to normal by Apr 30 也远没有出局。另一边的核心约束来自 e3：Despite the rebound, throughput remains only 14.6% of normal, war-risk insurance is still about 16x...；e5：The market resolves on a strict 7-day moving average threshold of at least 60 ships on April 30, an...。这些信息主要卡在达标可行性和缓和持续性，所以反场景仍然保留了大约四成左右的空间。\n\n从证据结构看，本次证据中未发现需要额外相关性惩罚的重复来源。 暂时还没有出现足以把主判断扭转过去的强冲突。\n\n再看敏感性检验，拿掉关键证据 e2 后，当前领先一侧的优势会明显收窄，说明这套判断还比较依赖这条主线叙事。 所以更合适的读法是：Returns to normal by Apr 30 有一定优势，结论已经偏向一侧，但分歧依然不小。 接下来真正可能改变判断的，会是达标可行性和缓和持续性上的新增证据。",
+    "rubric_design_summary": "This question uses the following topic-specific rubric dimensions: Market conviction: High volume with prices near 50/50 reflects genuine market disagreement and should be treated as a first-order signal.; Recovery momentum: This is a short-window recovery question; whether recent ship traffic keeps improving is central to normalization by month-end.; De-escalation durability: If ceasefires and talks only hold briefly, the recovery trend can easily stall again.; Threshold feasibility: The question is not merely whether things improve but whether a clear threshold is met by the deadline, so reachability of the bar must be assessed on its own.",
+    "method_overview": "This question uses a topic-specific rubric rather than a fixed dimension template. The active dimensions and weights are: Market conviction 28%, Recovery momentum 30%, De-escalation durability 22%, Threshold feasibility 20%. Each evidence row is scored on these dimensions and then converted into contributions using strength factors and correlation penalties.",
+    "decision_summary": "The highest-scoring option is Returns to normal by Apr 30, with normalized score 0.604. It leads Does not return to normal by Apr 30 by 0.208. This conclusion is mainly supported by 3 key positive evidence items.",
+    "reasoning_narrative": "The main disagreement in this question runs through Recovery momentum, Market conviction, and De-escalation durability. Recovery momentum matters because This is a short-window recovery question; whether recent ship traffic keeps improving is central to normalization by month-end. Market conviction matters because High volume with prices near 50/50 reflects genuine market disagreement and should be treated as a first-order signal.\n\nRight now, the leading scenario is Returns to normal by Apr 30. The main evidence pushing the judgment in that direction is e2: Recent upticks to 20 ships in the last 24 hours and multi-week weekend highs, together with a condi...; e1: Polymarket event page currently implies roughly a 53.5% chance of traffic returning to normal and a.... Together, those points strengthen Recovery momentum and Market conviction, putting the current likelihood at roughly around 60%.\n\nThat said, Does not return to normal by Apr 30 is still very much alive. The main counter-scenario is constrained by e3: Despite the rebound, throughput remains only 14.6% of normal, war-risk insurance is still about 16x...; e5: The market resolves on a strict 7-day moving average threshold of at least 60 ships on April 30, an.... Those points mainly run through Threshold feasibility and De-escalation durability, so the alternative scenario still retains roughly around the low 40s likelihood.\n\nFrom the evidence structure, No duplicate-source pattern required an extra correlation penalty in this evidence set. There is no major conflict yet that clearly overturns the current judgment.\n\nIn the sensitivity check, removing key evidence e2 sharply narrows the current lead, which means the judgment still depends heavily on that main narrative. A better reading is that Returns to normal by Apr 30 has a meaningful edge, and the conclusion leans one way, but disagreement is still material. The most likely things to change the judgment would be new evidence on Threshold feasibility and De-escalation durability.",
     "option_analyses": [
       {
         "option": "Returns to normal by Apr 30",
-        "position": "领先",
-        "score_statement": "原始分 2.332，归一化得分 0.604。",
+        "position": "leading",
+        "score_statement": "Raw score 2.332; normalized score 0.604.",
         "dimension_analysis": [
           {
             "dimension": "market-conviction",
-            "label": "市场定价强度",
-            "assessment": "正向驱动",
-            "analysis": "市场定价强度维度净贡献+0.629，判断为正向驱动。关键证据：e2, e1"
+            "label": "Market conviction",
+            "assessment": "positive driver",
+            "analysis": "Net contribution on Market conviction is +0.629, assessed as positive driver. Key evidence: e2, e1"
           },
           {
             "dimension": "recovery-momentum",
-            "label": "恢复动能",
-            "assessment": "正向驱动",
-            "analysis": "恢复动能维度净贡献+0.776，判断为正向驱动。关键证据：e2, e4"
+            "label": "Recovery momentum",
+            "assessment": "positive driver",
+            "analysis": "Net contribution on Recovery momentum is +0.776, assessed as positive driver. Key evidence: e2, e4"
           },
           {
             "dimension": "deescalation-durability",
-            "label": "缓和持续性",
-            "assessment": "正向驱动",
-            "analysis": "缓和持续性维度净贡献+0.508，判断为正向驱动。关键证据：e2, e4"
+            "label": "De-escalation durability",
+            "assessment": "positive driver",
+            "analysis": "Net contribution on De-escalation durability is +0.508, assessed as positive driver. Key evidence: e2, e4"
           },
           {
             "dimension": "threshold-feasibility",
-            "label": "达标可行性",
-            "assessment": "正向驱动",
-            "analysis": "达标可行性维度净贡献+0.418，判断为正向驱动。关键证据：e2, e4"
+            "label": "Threshold feasibility",
+            "assessment": "positive driver",
+            "analysis": "Net contribution on Threshold feasibility is +0.418, assessed as positive driver. Key evidence: e2, e4"
           }
         ],
         "evidence_logic": {
           "supporting": [
-            "e2（支持，贡献+1.120）: Recent upticks to 20 ships in the last 24 hours and multi-week weekend highs, together with a conditional two-week U.S.-Iran ceasefire launched April 7, indicate near-term recovery momentum.",
-            "e1（支持，贡献+0.618）: Polymarket event page currently implies roughly a 53.5% chance of traffic returning to normal and around $4.4M traded, showing a liquid but still divided market with a slight lean toward recovery."
+            "e2 (supports, contribution +1.120): Recent upticks to 20 ships in the last 24 hours and multi-week weekend highs, together with a conditional two-week U.S.-Iran ceasefire launched April 7, indicate near-term recovery momentum.",
+            "e1 (supports, contribution +0.618): Polymarket event page currently implies roughly a 53.5% chance of traffic returning to normal and around $4.4M traded, showing a liquid but still divided market with a slight lean toward recovery."
           ],
           "opposing": [
-            "未发现显著反向证据。"
+            "No significant opposing evidence identified."
           ]
         },
-        "risk_note": "对单条关键证据较敏感；若该证据失效，当前领先优势可能明显下降。"
+        "risk_note": "This option is sensitive to a single key evidence row; if that row fails, the current lead may shrink materially."
       },
       {
         "option": "Does not return to normal by Apr 30",
-        "position": "次优",
-        "score_statement": "原始分 1.909，归一化得分 0.396。",
+        "position": "runner-up",
+        "score_statement": "Raw score 1.909; normalized score 0.396.",
         "dimension_analysis": [
           {
             "dimension": "market-conviction",
-            "label": "市场定价强度",
-            "assessment": "正向驱动",
-            "analysis": "市场定价强度维度净贡献+0.457，判断为正向驱动。关键证据：e3, e5"
+            "label": "Market conviction",
+            "assessment": "positive driver",
+            "analysis": "Net contribution on Market conviction is +0.457, assessed as positive driver. Key evidence: e3, e5"
           },
           {
             "dimension": "recovery-momentum",
-            "label": "恢复动能",
-            "assessment": "正向驱动",
-            "analysis": "恢复动能维度净贡献+0.307，判断为正向驱动。关键证据：e3, e5"
+            "label": "Recovery momentum",
+            "assessment": "positive driver",
+            "analysis": "Net contribution on Recovery momentum is +0.307, assessed as positive driver. Key evidence: e3, e5"
           },
           {
             "dimension": "deescalation-durability",
-            "label": "缓和持续性",
-            "assessment": "正向驱动",
-            "analysis": "缓和持续性维度净贡献+0.556，判断为正向驱动。关键证据：e3, e5"
+            "label": "De-escalation durability",
+            "assessment": "positive driver",
+            "analysis": "Net contribution on De-escalation durability is +0.556, assessed as positive driver. Key evidence: e3, e5"
           },
           {
             "dimension": "threshold-feasibility",
-            "label": "达标可行性",
-            "assessment": "正向驱动",
-            "analysis": "达标可行性维度净贡献+0.589，判断为正向驱动。关键证据：e5, e3"
+            "label": "Threshold feasibility",
+            "assessment": "positive driver",
+            "analysis": "Net contribution on Threshold feasibility is +0.589, assessed as positive driver. Key evidence: e5, e3"
           }
         ],
         "evidence_logic": {
           "supporting": [
-            "e3（支持，贡献+0.996）: Despite the rebound, throughput remains only 14.6% of normal, war-risk insurance is still about 16x normal, and Brent crude is near $122, all of which point to a still-fragile operating environment.",
-            "e5（支持，贡献+0.913）: The market resolves on a strict 7-day moving average threshold of at least 60 ships on April 30, and current traffic is still far below that benchmark, making full normalization a high bar even if conditions improve."
+            "e3 (supports, contribution +0.996): Despite the rebound, throughput remains only 14.6% of normal, war-risk insurance is still about 16x normal, and Brent crude is near $122, all of which point to a still-fragile operating environment.",
+            "e5 (supports, contribution +0.913): The market resolves on a strict 7-day moving average threshold of at least 60 ships on April 30, and current traffic is still far below that benchmark, making full normalization a high bar even if conditions improve."
           ],
           "opposing": [
-            "未发现显著反向证据。"
+            "No significant opposing evidence identified."
           ]
         },
-        "risk_note": "当前未发现明显结构性风险。"
+        "risk_note": "No obvious structural risk is visible at the moment."
       }
     ]
   },
@@ -228,9 +243,9 @@
   "assumptions": [],
   "engine": {
     "name": "rubric-forecast-engine",
-    "version": "2.2.0",
+    "version": "2.3.0",
     "strict_decoupling": true,
-    "computed_by": "scripts/rubric_forecast.py",
-    "input_sha256": "36a9b130e8715a1818b997b3cb24e224e27ec214cb04578bc3af5a998342464b"
+    "computed_by": "rubric_forecast.engine",
+    "input_sha256": "5ff7a50e74ffe717c2ec630778e720944575754d8ec53c8128b910f243943e36"
   }
 }

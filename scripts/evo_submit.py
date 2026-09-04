@@ -4,14 +4,11 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import os
-import random
 import subprocess
 import sys
 import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
@@ -370,73 +367,30 @@ def truncate_content(text: str, max_len: int = 2000) -> str:
     return text
 
 
-def _wallet_variant_seed(wallet_label: str, topic_id: int) -> int:
-    raw = f"{wallet_label}|{topic_id}".encode("utf-8")
-    return int(hashlib.sha256(raw).hexdigest()[:8], 16)
-
-
-def _wallet_variant_pick(wallet_label: str, topic_id: int, choices: List[str]) -> str:
-    rng = random.Random(_wallet_variant_seed(wallet_label, topic_id))
-    return choices[rng.randrange(len(choices))]
-
-
-def _wallet_variant_reorder(wallet_label: str, topic_id: int, items: List[str]) -> List[str]:
-    out = [x for x in items if x]
-    rng = random.Random(_wallet_variant_seed(wallet_label, topic_id) ^ 0xABCDEF)
-    rng.shuffle(out)
-    return out
-
-
-def english_payload_text(bundle: Dict[str, Any], stance: str, wallet_label: str = "") -> str:
+def english_payload_text(bundle: Dict[str, Any], stance: str) -> str:
     sp = bundle.get("submit_payload_suggested") if isinstance(bundle.get("submit_payload_suggested"), dict) else {}
     rc = sp.get("reasoning_chain") if isinstance(sp.get("reasoning_chain"), dict) else {}
     thesis = str(rc.get("thesis") or "").strip()
     key_points = rc.get("key_points") if isinstance(rc.get("key_points"), list) else []
     english_points = [str(x).strip() for x in key_points if isinstance(x, str) and all(ord(ch) < 128 for ch in x)]
-    topic_id = int((bundle.get("topic") or {}).get("id") or 0)
     if thesis and all(ord(ch) < 128 for ch in thesis):
-        lead = _wallet_variant_pick(wallet_label, topic_id, [
-            "Base case:",
-            "Current read:",
-            "My working view:",
-            "Main call:",
-        ])
         paragraphs = [p.strip() for p in thesis.split("\n\n") if p.strip()]
-        paragraphs = _wallet_variant_reorder(wallet_label, topic_id, paragraphs[:2]) + paragraphs[2:]
-        return truncate_content(f"{lead} " + "\n\n".join(paragraphs), 2000)
+        return truncate_content("Base case: " + "\n\n".join(paragraphs), 2000)
     if english_points:
-        ordered = _wallet_variant_reorder(wallet_label, topic_id, english_points[:4])
-        lead = _wallet_variant_pick(wallet_label, topic_id, [
-            "Signal summary:",
-            "Most useful cues:",
-            "Why this side leads:",
-        ])
-        return truncate_content(f"{lead} " + " ".join(ordered), 2000)
+        return truncate_content("Signal summary: " + " ".join(english_points[:4]), 2000)
     forecast = bundle.get("forecast") if isinstance(bundle.get("forecast"), dict) else {}
     multidim = forecast.get("rubric_multidim_analysis") if isinstance(forecast.get("rubric_multidim_analysis"), dict) else {}
     if isinstance(multidim.get("reasoning_narrative"), str) and multidim.get("reasoning_narrative").strip():
         return truncate_content(str(multidim.get("reasoning_narrative")).strip(), 2000)
     final_answer = str(forecast.get("final_answer") or stance or "prediction").strip() or "prediction"
     confidence = confidence_from_forecast(forecast, stance)
-    prefix = _wallet_variant_pick(wallet_label, topic_id, [
-        "I lean",
-        "My call is",
-        "I currently favor",
-        "I would submit",
-    ])
-    suffix = _wallet_variant_pick(wallet_label, topic_id, [
-        "based on the current evidence mix.",
-        "given the present market and evidence setup.",
-        "after weighing the available signals.",
-        "using the current cross-source read.",
-    ])
     return truncate_content(
-        f"{prefix} {final_answer} with confidence score {confidence}/100 {suffix}",
+        f"I lean {final_answer} with confidence score {confidence}/100 based on the current evidence mix.",
         2000,
     )
 
 
-def english_reasoning_chain(bundle: Dict[str, Any], stance: str, wallet_label: str = "") -> Dict[str, Any]:
+def english_reasoning_chain(bundle: Dict[str, Any], stance: str) -> Dict[str, Any]:
     sp = bundle.get("submit_payload_suggested") if isinstance(bundle.get("submit_payload_suggested"), dict) else {}
     rc = sp.get("reasoning_chain") if isinstance(sp.get("reasoning_chain"), dict) else {}
     source_details = rc.get("source_details") if isinstance(rc.get("source_details"), list) else []
@@ -454,12 +408,11 @@ def english_reasoning_chain(bundle: Dict[str, Any], stance: str, wallet_label: s
             break
     forecast = bundle.get("forecast") if isinstance(bundle.get("forecast"), dict) else {}
     multidim = forecast.get("rubric_multidim_analysis") if isinstance(forecast.get("rubric_multidim_analysis"), dict) else {}
-    topic_id = int((bundle.get("topic") or {}).get("id") or 0)
-    summary = str(multidim.get("decision_summary") or english_payload_text(bundle, stance, wallet_label)).strip()
+    summary = str(multidim.get("decision_summary") or english_payload_text(bundle, stance)).strip()
     thesis = str(rc.get("thesis") or forecast.get("reasoning_text") or summary).strip()
     sources = rc.get("sources") if isinstance(rc.get("sources"), list) else []
     key_points = rc.get("key_points") if isinstance(rc.get("key_points"), list) else []
-    ordered_points = _wallet_variant_reorder(wallet_label, topic_id, [str(x).strip() for x in key_points if str(x).strip()])
+    ordered_points = [str(x).strip() for x in key_points if str(x).strip()]
     return {
         "summary": truncate_content(summary, 1200),
         "thesis": truncate_content(thesis, 20000),
@@ -574,10 +527,10 @@ def submit_openclaw_one_wallet(
     body_json: Dict[str, Any] = {
         "agent_id": agent_id,
         "prediction_id": matched,
-        "content": english_payload_text(bundle, stance, sess["label"]),
+        "content": english_payload_text(bundle, stance),
         "stance": stance,
         "confidence_score": confidence_from_forecast(forecast, stance),
-        "reasoning_chain": english_reasoning_chain(bundle, stance, sess["label"]),
+        "reasoning_chain": english_reasoning_chain(bundle, stance),
         "confirm_mode": confirm_mode,
     }
 
@@ -757,7 +710,6 @@ def main() -> None:
     parser.add_argument("--config", type=Path, default=skill_root() / "config" / "evo_config.json")
     parser.add_argument("--bundle", type=Path, required=True, help="Output from evo_predict.py")
     parser.add_argument("--dry-run", action="store_true")
-    parser.add_argument("--max-wallets", type=int, default=10)
     parser.add_argument("--chain-id", type=int, default=0, help="Override config chain_id for serial multi-chain runs")
     parser.add_argument("--force-resubmit", action="store_true", help="Ignore local cursor skip checks and resubmit anyway")
     args = parser.parse_args()
@@ -784,7 +736,8 @@ def main() -> None:
         sys.exit(1)
     prediction_id = int(prediction_id_opt) if prediction_id_opt is not None else 0
 
-    wallets = load_wallets(cfg)[: max(1, args.max_wallets)]
+    # One operator, one wallet: only the first configured wallet ever submits.
+    wallets = load_wallets(cfg)[:1]
     pending: List[Dict[str, Any]] = []
     for w in wallets:
         acct = wallet_account(w)
@@ -799,9 +752,9 @@ def main() -> None:
 
     if not pending:
         note = (
-            "all wallets already submitted for openclaw prediction_id"
+            "wallet already submitted for openclaw prediction_id"
             if mode == "openclaw"
-            else "all wallets already submitted for topic"
+            else "wallet already submitted for topic"
         )
         print(
             json.dumps(
@@ -816,28 +769,22 @@ def main() -> None:
         return
 
     results: List[Dict[str, Any]] = []
-    with ThreadPoolExecutor(max_workers=min(10, len(pending))) as ex:
-        futs = {
-            ex.submit(submit_one_wallet, cfg, bundle, entry, args.dry_run): entry
-            for entry in pending
-        }
-        for fut in as_completed(futs):
-            entry = futs[fut]
-            try:
-                results.append(fut.result())
-            except Exception as e:
-                acct = wallet_account(entry)
-                results.append(
-                    {
-                        "address": acct.address,
-                        "label": str(entry.get("label") or acct.address[:10]),
-                        "mode": mode,
-                        "dry_run": args.dry_run,
-                        "ok": False,
-                        "error": str(e),
-                        "stage": "future_result",
-                    }
-                )
+    for entry in pending:
+        try:
+            results.append(submit_one_wallet(cfg, bundle, entry, args.dry_run))
+        except Exception as e:
+            acct = wallet_account(entry)
+            results.append(
+                {
+                    "address": acct.address,
+                    "label": str(entry.get("label") or acct.address[:10]),
+                    "mode": mode,
+                    "dry_run": args.dry_run,
+                    "ok": False,
+                    "error": str(e),
+                    "stage": "submit",
+                }
+            )
 
     ok_count = sum(1 for r in results if r.get("ok") is True)
 

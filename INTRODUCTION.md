@@ -1,131 +1,128 @@
 # Rubric Forecasting Skill Introduction
 
-## 这是什么
+## What this is
 
-这是一个面向“结构化预测”的技能。
+This is a skill for **structured forecasting**.
 
-它的目标不是让模型在对话里临时拍脑袋给一个概率，而是把预测拆成两部分：
+Its goal is not to have the model spit out a probability on the fly in conversation, but to split prediction into two parts:
 
-1. 由模型负责理解题目、整理证据、为当前题目设计合适的判断维度。
-2. 由脚本引擎负责做所有数值计算，包括加权、累加、归一化和敏感性分析。
+1. The model understands the question, organizes evidence, and designs appropriate evaluation dimensions for the current question.
+2. The script engine performs all numeric work: weighting, aggregation, normalization, and sensitivity analysis.
 
-最后，它会同时给出两类结果：
+In the end it produces two kinds of results:
 
-1. 可审计的数值输出。
-2. 可阅读的自然语言推理输出。
+1. Auditable numeric output.
+2. Readable natural-language reasoning.
 
-这意味着你拿到的不只是“答案是多少”，还包括“为什么是这个答案”。
+So you get not only “what the answer is,” but also “why that answer.”
 
-## 它解决的是什么问题
+## What problem it solves
 
-普通的 LLM 直接做预测，常见会遇到这几类问题：
+When a plain LLM predicts directly, you often see:
 
-1. 会说得很像那么回事，但中间分数其实算错了。
-2. 会把不同类型的话题硬套到同一套分析框架里。
-3. 会忽略反证，或者把重复来源当成多条独立证据。
-4. 会输出一大段话，但很难复盘它到底为什么得出这个结论。
+1. Plausible-sounding text with wrong intermediate scores.
+2. Forcing different topics into the same analytic frame.
+3. Ignoring counterevidence or treating repeated sources as independent evidence.
+4. Long prose that is hard to replay to see why the conclusion followed.
 
-这个技能的设计，就是为了解决这些问题：
+This skill is designed to address that:
 
-1. 让判断维度跟题目匹配，而不是固定模板硬套。
-2. 让数学计算交给脚本，不交给 LLM 心算。
-3. 让每条证据的作用都可追溯。
-4. 让最终输出既有数字，也有像分析师评论一样的推理过程。
+1. Judgment dimensions match the question, not a fixed template.
+2. Math is delegated to scripts, not to LLM mental arithmetic.
+3. Each piece of evidence’s role is traceable.
+4. Final output has both numbers and an analyst-style reasoning narrative.
 
-## 关键概念解释
+## Key concepts
 
-下面这些词，是第一次使用时最容易卡住的地方。
+These terms are where newcomers most often get stuck.
 
 1. `question`
-   预测问题本身。
-   例子：`Will Strait of Hormuz traffic return to normal by April 30, 2026?`
+   The forecasting question itself.
+   Example: `Will Strait of Hormuz traffic return to normal by April 30, 2026?`
 
 2. `options`
-   这道题有哪些候选结果。
-   例子：`["yes", "no"]`
-   它们最好是互斥的，也就是最后只能有一个成立。
+   The candidate outcomes for this question.
+   Example: `["yes", "no"]`
+   They should be mutually exclusive so only one can ultimately hold.
 
 3. `resolution_rule`
-   “将来怎么算对错”的规则。
-   你可以把它理解为判分标准。
-   例子：`如果公司在官网正式发布，则记为 yes；否则记为 no。`
+   The rule for how the outcome will be scored later.
+   Think of it as the grading rubric.
+   Example: `If the company officially announces on its website, count as yes; otherwise no.`
 
 4. `evidence`
-   证据列表。
-   也就是你做判断时所依赖的材料清单。
-   每条证据都最好说明：
-   
-   - 它说了什么
-   - 来自哪里
-   - 它支持哪个选项
-   - 它有多强
-   - 它在这道题各个判断维度上的表现怎样
+   A list of evidence—what you rely on when judging.
+   Each item should ideally state:
+
+   - What it claims
+   - Where it comes from
+   - Which option it supports
+   - How strong it is
+   - How it scores on each rubric dimension for this question
 
 5. `rubric_dimensions`
-   这道题专属的“判断维度”。
-   它不是所有题都一样的固定模板，而是根据当前话题单独设计。
-   
-   比如：
-   
-   - 对战争题，可能要看“缓和持续性”“升级风险”“达标可行性”
-   - 对选举题，可能要看“候选人基本盘”“资金动能”“媒体议程”
-   - 对产品上线题，可能要看“执行就绪度”“组织承诺度”“时间压力”
+   Question-specific “judgment dimensions.”
+   Not a one-size-fits-all template, but designed for the topic at hand.
+
+   Examples:
+
+   - For conflict questions: e.g. durability of de-escalation, escalation risk, feasibility of meeting the bar
+   - For elections: e.g. candidate base, funding momentum, media agenda
+   - For product launches: e.g. execution readiness, organizational commitment, time pressure
 
 6. `dimension_scores`
-   某条证据在每个判断维度上的分数，范围通常是 `0` 到 `1`。
-   你可以把它理解为“这条证据在这个维度上有多支持”。
+   Per-dimension scores for a piece of evidence, usually in `0`–`1`.
+   Interpret as “how much this evidence supports on this dimension.”
 
 7. `strength`
-   证据强度。
-   脚本支持四档：
-   
+   Evidence strength.
+   The script supports four levels:
+
    - `weak`
    - `medium`
    - `strong`
    - `extreme`
 
 8. `dependency_group`
-   用来标记“这些证据其实很像，可能来自同一个源头或同一条信息链”。
-   这样脚本就不会把重复信息算成很多次。
+   Marks evidence that is similar or may share a root source or information chain.
+   The script will not count redundant information many times.
 
 9. `normalization_temperature`
-   softmax 归一化时用到的温度参数。
-   对大多数用户来说，不需要改，默认 `1.0` 就可以。
+   Temperature for softmax normalization.
+   Most users can leave the default `1.0`.
 
 10. `forecast_time`
-    当前这版预测是什么时间生成的。
-    它主要用于记录、版本管理和复盘，不是强制的信息边界。
+    When this forecast version was produced.
+    Used for logging, versioning, and review—not a hard information boundary.
 
 11. `close_time`
-    这道题希望观察到什么时候。
-    它主要用于记录预测时间窗，方便后续回看。
+    How long you intend to observe the question.
+    Used to record the forecast window for later review.
 
 12. `fail-closed`
-    一种安全策略。
-    意思是：如果输入不完整、脚本失败、或结果不可信，系统宁可返回失败，也不冒险给一个貌似确定的答案。
+    A safety posture: if input is incomplete, the script fails, or the result is untrusted, the system prefers failure over a falsely confident answer.
 
 13. `insufficient_spec`
-    表示“输入规格不够，暂时不能继续”。
-    这时系统会告诉你：
-    
-    - 缺了什么
-    - 为什么不能算
-    - 下一步需要补什么
+    Means “the input spec is not enough to proceed.”
+    The system should tell you:
+
+    - What is missing
+    - Why computation cannot continue
+    - What to supply next
 
 14. `engine`
-    结果中的计算签名。
-    它说明这份结果是脚本算出来的，不是模型临时编出来的。
+    A computational signature in the result.
+    Shows the output was produced by the script, not invented by the model on the spot.
 
 15. `strict_decoupling=true`
-    表示“语义推理”和“数学计算”是严格分离的。
-    也就是：
-    
-    - 模型负责理解和解释
-    - 脚本负责数值计算
+    Means semantic reasoning and numeric computation are strictly separated:
 
-## 一个最小输入示例
+    - The model interprets and explains
+    - The script does the numbers
 
-下面是一个最小可用输入例子。
+## Minimal input example
+
+A minimal workable input:
 
 ```json
 {
@@ -135,21 +132,21 @@
   "rubric_dimensions": [
     {
       "key": "execution-readiness",
-      "label": "执行就绪度",
+      "label": "Execution readiness",
       "weight": 0.40,
-      "why_it_matters": "这道题的核心是产品是否已经接近可发布状态。"
+      "why_it_matters": "This question hinges on whether the product is close to shippable."
     },
     {
       "key": "organizational-commitment",
-      "label": "组织承诺度",
+      "label": "Organizational commitment",
       "weight": 0.35,
-      "why_it_matters": "管理层是否真的推动上线，会显著影响结果。"
+      "why_it_matters": "Whether leadership is genuinely driving launch materially affects the outcome."
     },
     {
       "key": "timeline-pressure",
-      "label": "时间窗口压力",
+      "label": "Timeline pressure",
       "weight": 0.25,
-      "why_it_matters": "截止时间越近，任何延期因素的影响越大。"
+      "why_it_matters": "Closer deadlines amplify the impact of any slip."
     }
   ],
   "evidence": [
@@ -170,101 +167,96 @@
 }
 ```
 
-## 它是怎么工作的
+## How it works
 
-整体流程可以理解成 8 步。
+The end-to-end flow is eight steps.
 
-1. 明确题目
-   先收齐最重要的输入：
-   
+1. Clarify the question
+   Collect the core inputs:
+
    - `question`
    - `options`
    - `resolution_rule`
    - `evidence`
 
-2. 为当前题设计专属 Rubric
-   先判断这是一道什么类型的题，再决定这道题最值得看的 3 到 6 个维度。
+2. Design a question-specific rubric
+   Infer the question type, then pick roughly 3–6 dimensions that matter most.
 
-3. 把证据结构化
-   每条证据都要写清楚：
-   
-   - 支持哪边
-   - 强度如何
-   - 在各个维度上的评分如何
-   - 是否属于某个重复来源分组
+3. Structure evidence
+   For each item specify:
 
-4. 由脚本计算每条证据贡献
-   脚本会根据：
-   
-   - 维度权重
-   - 各维度分数
-   - 证据强度
-   - 相关性惩罚
-     算出每条证据对选项的贡献值。
+   - Which side it supports
+   - Strength
+   - Scores on each dimension
+   - Whether it belongs to a dependency group
 
-5. 由脚本汇总到选项层
-   所有证据贡献被加到对应选项上，得到每个选项的原始分。
+4. Script: per-evidence contribution
+   The script combines:
 
-6. 由脚本做归一化
-   原始分会再被转成和为 1 的归一化分数，便于比较不同选项。
+   - Dimension weights
+   - Dimension scores
+   - Evidence strength
+   - Dependency penalty
+   to get each evidence item’s contribution to options.
 
-7. 由脚本做敏感性分析
-   系统会移除当前影响最大的一条证据重新计算，看看结论会不会明显变化。
-   这一步是为了判断结论稳不稳。
+5. Script: aggregate to options
+   Contributions are summed per option to get raw scores.
 
-8. 输出“数字 + 评论”
-   最终输出既包括分数，也包括一段自然语言分析。
+6. Script: normalize
+   Raw scores become normalized scores that sum to 1 for comparison across options.
 
-## 它会输出什么
+7. Script: sensitivity analysis
+   Drop the single most influential evidence item and recompute to see if the conclusion shifts materially.
+   This tests robustness.
 
-成功时，最重要的输出包括：
+8. Output “numbers + commentary”
+   Final output includes scores and a natural-language analysis.
+
+## What it outputs
+
+On success, key fields include:
 
 1. `final_answer`
-   当前最被支持的选项。
+   The option best supported right now.
 
 2. `raw_option_scores`
-   每个选项的原始分。
+   Raw score per option.
 
 3. `normalized_scores`
-   每个选项的归一化分。
+   Normalized score per option.
 
 4. `evidence_ledger`
-   证据账本。
-   你可以直接看到每条证据：
-   
-   - 支持谁
-   - 强度如何
-   - 质量分如何
-   - 最终贡献多少
+   Evidence ledger: per item you can see:
+
+   - What it supports
+   - Strength
+   - Quality score
+   - Final contribution
 
 5. `sensitivity`
-   敏感性分析结果。
-   告诉你如果拿掉影响最大的证据，结论会变化多少。
+   Sensitivity results: how much the top option’s score moves if the largest contributor is removed.
 
 6. `reasoning_text`
-   一段连续自然语言推理。
-   现在这段文字更像“分析师评论”，通常会包含：
-   
-   - 这道题真正的分歧点是什么
-   - 当前主场景是什么
-   - 反场景为什么还没出局
-   - 哪些变量最可能改变判断
+   Continuous natural-language reasoning—an “analyst note” that typically covers:
+
+   - Where the real disagreement lies
+   - The leading scenario
+   - Why the counter-scenario is not ruled out
+   - Which variables are most likely to change the call
 
 7. `rubric_multidim_analysis`
-   更细的结构化解释。
-   里面会包含：
-   
-   - 方法总览
-   - 决策摘要
-   - 每个选项的多维诊断
-   - 关键支持证据
-   - 风险提示
+   Finer structured explanation:
+
+   - Method overview
+   - Decision summary
+   - Multi-dimensional diagnosis per option
+   - Key supporting evidence
+   - Risk notes
 
 8. `engine`
-   计算签名。
-   用来证明这次结果是脚本引擎算出来的。
+   Computational signature proving script-engine provenance.
 
-失败时，会返回：
+On failure:
 
 1. `status = insufficient_spec`
 2. `missing_fields`
@@ -272,131 +264,129 @@
 4. `next_required_inputs`
 5. `engine`
 
-## `reasoning_text` 是什么？
+## What is `reasoning_text`?
 
- `reasoning_text` 是一段预测评论。
+`reasoning_text` is a forecast commentary.
 
-它通常会长成这种结构：
+It usually follows this shape:
 
-1. 先指出“真正的分歧点”
-2. 再讲“当前更像哪条主场景”
-3. 然后说明“反场景为什么还存在”
-4. 最后指出“真正可能改变判断的变量”
+1. Name the real point of contention
+2. Describe the leading scenario
+3. Explain why the counter-scenario still lives
+4. Call out variables that could flip the judgment
 
-也就是说，它不只是告诉你“分数是多少”，而是尽量像一个分析师在解释：
+So it is not only “what the scores are,” but an analyst-style explanation of:
 
-- 现在市场在争什么
-- 为什么我暂时偏向这一边
-- 另一边靠什么支撑
-- 后面要盯什么才会改判
+- What the market (or debate) is really fighting over
+- Why you lean one way for now
+- What props up the other side
+- What to watch to revise the call
 
-## 设计思路
+## Design rationale
 
-这套技能的核心设计思路是：让模型和引擎各做自己擅长的事。
+Core idea: let the model and the engine each do what they are good at.
 
-1. 模型负责语义工作
-   
-   - 理解题目
-   - 设计题目专属 Rubric
-   - 整理证据
-   - 解释结果
+1. Model: semantics
 
-2. 脚本负责数值工作
-   
-   - 计算加权质量分
-   - 计算证据贡献
-   - 汇总选项分数
-   - 归一化
-   - 做敏感性分析
+   - Understand the question
+   - Design a question-specific rubric
+   - Organize evidence
+   - Explain results
 
-3. 协议负责兜底
-   
-   - 如果输入缺失，返回 `insufficient_spec`
-   - 如果脚本不可用，fail-closed
-   - 如果结果没有 `engine`，不把它当有效结果
+2. Script: numerics
 
-这个分工可以避免“同一个模型既要做分析，又要做计算”时常见的混乱。
+   - Weighted quality scores
+   - Evidence contributions
+   - Option aggregation
+   - Normalization
+   - Sensitivity analysis
 
-## 为什么它有效
+3. Protocol: guardrails
 
-它有效，不是因为“更复杂”，而是因为它更稳定。
+   - Missing input → `insufficient_spec`
+   - Script unavailable → fail-closed
+   - No `engine` field → do not treat as a valid numeric result
 
-1. 维度是跟着题目走的
-   不同题型看不同变量，而不是所有题都套同一套框架。
+This split reduces the usual mess when one model must both analyze and compute.
 
-2. 证据路径可追溯
-   每条证据都能看到它最后影响了谁、影响了多少。
+## Why it works
 
-3. 重复来源会降权
-   不会因为同一件事被不同表述说了三遍，就被误判成三条独立强证据。
+It works not because it is “more complex,” but because it is more stable.
 
-4. 有反脆弱检查
-   通过敏感性分析，可以看出当前判断是不是过度依赖某一条证据。
+1. Dimensions follow the question
+   Different question types emphasize different variables.
 
-5. 输出既能看，也能查
-   既适合快速阅读，也适合复盘和审计。
+2. Evidence paths are traceable
+   Every item shows whom it moved and by how much.
 
-## 为什么通常比 LLM 直接预测更准确
+3. Correlated sources are down-weighted
+   The same fact said three ways is not three independent strong signals.
 
-“更准确”主要来自误差结构改善，而不是神奇增强。
+4. Anti-fragility check
+   Sensitivity shows whether the call leans too hard on one item.
 
-1. 题目框架更贴题
-   它先为当前题设计判断维度，而不是拿一个通用模板硬套。
+5. Output is readable and auditable
+   Good for a quick read and for replay/audit.
 
-2. 消除了心算错误
-   LLM 在多步加权、归一化、符号处理上很容易出错，脚本不会。
+## Why it is often more accurate than a raw LLM forecast
 
-3. 减少了叙述和计算混在一起的偏差
-   LLM 直接预测时，常常是“说得顺”压过“算得对”。
-   这里则是先算，再解释。
+“More accurate” comes from error-structure improvement, not magic.
 
-4. 对反证更友好
-   反场景不会因为主场景叙事更顺就被自动抹掉，而是会保留在结果中。
+1. The frame fits the question
+   Dimensions are designed for this item, not a generic template.
 
-5. 更容易复盘
-   同一题换一条证据、换一个权重、换一个时间点，都可以回看结论怎么变。
+2. Mental math errors are removed
+   LLMs slip on multi-step weighting, normalization, and sign handling; scripts do not.
 
-注意：
-它提升的是“流程可靠性”和“数值可靠性”，并不替代高质量信息源。
-如果证据本身很差，结果也不会 magically 变好。
+3. Narrative-compute bias is reduced
+   Raw LLM forecasts often favor “sounds smooth” over “adds up.”
+   Here: compute first, then explain.
 
-## 为什么更省 token
+4. Counter-scenarios stay visible
+   They are not washed out because the main story reads better.
 
-省 token 的关键，在于把算术从对话里拿走。
+5. Easier to replay
+   Change one evidence item, weight, or timestamp and see how the conclusion moves.
 
-1. 不需要让模型在文本里展开长串计算
-   所有打分、累加、归一化都由脚本处理。
+Note:
+This improves process and numeric reliability; it does not replace high-quality sources.
+Garbage-in still yields weak forecasts—no magical fix.
 
-2. 输出结构稳定
-   不需要每次都让模型重新发明一套输出格式。
+## Why it saves tokens
 
-3. 修改成本低
-   你改一条证据、一个权重，脚本直接重算，不需要让模型重新“口算”一遍。
+The win is moving arithmetic out of the chat.
 
-4. 解释更聚焦
-   模型可以把 token 花在“为什么这么判断”上，而不是花在算式上。
+1. No long calculation traces in model text
+   Scoring, summing, and normalization live in the script.
 
-## 适用边界
+2. Stable output shape
+   The model does not reinvent a format every time.
 
-更适合：
+3. Cheap iteration
+   Change one evidence row or weight; the script recomputes without another “mental pass.”
 
-1. 候选结果明确、可裁决的预测题。
-2. 需要可复现、可审计输出的场景。
-3. 需要同时保留“数字结果”和“解释过程”的场景。
+4. Explanations stay focused
+   Tokens go to “why this judgment,” not to redoing formulas.
 
-不太适合：
+## When to use it
 
-1. 纯价值判断题。
-2. 根本无法定义裁决规则的题。
-3. 证据完全无法结构化的题。
+Better fits:
 
-# 
+1. Forecasts with clear, adjudicable outcomes.
+2. Settings that need reproducible, auditable output.
+3. When you need both numeric results and an explanation trail.
 
-## 一句话总结
+Poor fits:
 
-这套技能把“题目理解”和“数值计算”彻底拆开：
+1. Pure value questions.
+2. Questions with no definable resolution rule.
+3. Evidence that cannot be structured at all.
 
-1. 模型负责理解题目、组织证据、生成解释。
-2. 脚本负责打分、归一化、做敏感性分析。
+## One-line summary
 
-所以它通常会比直接让 LLM 口头预测更稳、更可审计，也更省 token。
+This skill cleanly separates **question understanding** from **numeric computation**:
+
+1. The model understands the question, organizes evidence, and generates explanation.
+2. The script scores, normalizes, and runs sensitivity analysis.
+
+So it tends to be steadier, more auditable, and more token-efficient than asking an LLM to “just predict” in prose.

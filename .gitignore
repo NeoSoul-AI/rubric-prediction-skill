@@ -35,3 +35,7 @@ __MACOSX/
 *.swp
 .DS_Store
 Thumbs.db
+
+# Autopilot local data (do not commit)
+.rubric_autopilot/
+*.keystore.local

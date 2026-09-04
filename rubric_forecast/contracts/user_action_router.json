@@ -1,0 +1,74 @@
+[
+  {
+    "type": "function",
+    "name": "registerAndBind",
+    "stateMutability": "nonpayable",
+    "inputs": [
+      { "name": "evoAccount", "type": "address" },
+      { "name": "evoUserIdHash", "type": "bytes32" },
+      { "name": "agentURI", "type": "string" },
+      {
+        "name": "metadata",
+        "type": "tuple[]",
+        "components": [
+          { "name": "key", "type": "string" },
+          { "name": "value", "type": "bytes" }
+        ]
+      }
+    ],
+    "outputs": [{ "name": "agentId", "type": "uint256" }]
+  },
+  {
+    "type": "function",
+    "name": "bindExistingAgent",
+    "stateMutability": "nonpayable",
+    "inputs": [
+      { "name": "agentId", "type": "uint256" },
+      { "name": "evoAccount", "type": "address" },
+      { "name": "evoUserIdHash", "type": "bytes32" }
+    ],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "mintWithSig",
+    "stateMutability": "nonpayable",
+    "inputs": [
+      { "name": "to", "type": "address" },
+      { "name": "profileHash", "type": "bytes32" },
+      { "name": "uri", "type": "string" },
+      { "name": "nonce", "type": "uint256" },
+      { "name": "deadline", "type": "uint256" },
+      { "name": "signature", "type": "bytes" }
+    ],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "intakeReasoning",
+    "stateMutability": "nonpayable",
+    "inputs": [
+      { "name": "tokenId", "type": "uint256" },
+      { "name": "sourceOpinionId", "type": "uint256" },
+      { "name": "reasoningHash", "type": "bytes32" },
+      { "name": "opinionHash", "type": "bytes32" },
+      { "name": "newMemoryRoot", "type": "bytes32" },
+      { "name": "nonce", "type": "uint256" },
+      { "name": "deadline", "type": "uint256" },
+      { "name": "signature", "type": "bytes" }
+    ],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "judge",
+    "stateMutability": "nonpayable",
+    "inputs": [
+      { "name": "predictionId", "type": "uint256" },
+      { "name": "agentTokenId", "type": "uint256" },
+      { "name": "agree", "type": "bool" },
+      { "name": "opinionId", "type": "uint256" }
+    ],
+    "outputs": []
+  }
+]

@@ -14,7 +14,9 @@
     body { max-width: 56rem; margin: 0 auto; padding: 1rem 1.25rem 2rem; }
     h1 { font-size: 1.25rem; margin: 0 0 0.5rem; }
     p.meta { color: #52525b; font-size: 0.9rem; margin: 0 0 1rem; }
+    p.meta.tight { margin-bottom: 0; }
     .row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .row.tight-top { margin-top: 0.5rem; }
     button {
       cursor: pointer;
       padding: 0.4rem 0.75rem;
@@ -52,6 +54,13 @@
     }
     .err { color: #b91c1c; margin: 0.5rem 0; font-size: 0.9rem; }
     .ok { color: #15803d; font-size: 0.85rem; margin: 0.25rem 0; }
+    details.autopilot { margin: 0 0 1rem; padding: 0.75rem 1rem; background: #fff; border: 1px solid #d4d4d8; border-radius: 6px; }
+    details.autopilot summary { cursor: pointer; font-weight: 600; font-size: 0.95rem; }
+    details.autopilot p { color: #52525b; font-size: 0.875rem; margin: 0.5rem 0; }
+    .env-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin: 0.5rem 0; }
+    .env-table th, .env-table td { border: 1px solid #e4e4e7; padding: 0.35rem 0.5rem; text-align: left; }
+    .env-table th { background: #fafafa; }
+    pre#autopilotEnv { max-height: 16rem; margin-top: 0.5rem; }
   </style>
 </head>
 <body>
@@ -61,9 +70,40 @@
     <code>python examples/web_demo/server.py</code>, then open this page. For local debugging only; do not expose to the public internet.
   </p>
 
+  <details class="autopilot">
+    <summary>Autopilot (unattended)</summary>
+    <p>
+      This page only runs one-off <code>run_forecast</code> over HTTP. The local Autopilot CLI scans candidates
+      (OpenClaw API or a JSON file), scores with the same engine, applies policy, and writes an audit log. It is not started from the browser.
+    </p>
+    <table class="env-table">
+      <thead>
+        <tr><th scope="col">Variable</th><th scope="col">Role</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>AUTOPILOT_DATA_DIR</code></td><td>Data directory (policy, audit, state)</td></tr>
+        <tr><td><code>AUTOPILOT_DRY_RUN</code></td><td><code>true</code> / <code>false</code> (default <code>true</code>)</td></tr>
+        <tr><td><code>AUTOPILOT_CANDIDATES_FILE</code></td><td>Optional path to candidate JSON (skips API)</td></tr>
+        <tr><td><code>LIFEFUN_API_BASE_URL</code></td><td>LifeFun-compatible API base URL</td></tr>
+        <tr><td><code>AUTOPILOT_RPC_URL</code></td><td>EVM JSON-RPC for non-dry-run</td></tr>
+        <tr><td><code>AUTOPILOT_CHAIN_ID</code></td><td>Chain id</td></tr>
+        <tr><td><code>AUTOPILOT_KEYSTORE_PASSWORD</code></td><td>Unlock keystore (non-dry-run)</td></tr>
+      </tbody>
+    </table>
+    <p class="meta tight">
+      See <code>examples/web_demo/README.md</code> and <code>AUTOPILOT.md</code> in the repository.
+    </p>
+    <div class="row tight-top">
+      <button type="button" id="btnAutopilotEnv">Load env template</button>
+    </div>
+    <label for="autopilotEnv"><code>autopilot.env.example</code></label>
+    <pre id="autopilotEnv" class="out" aria-label="autopilot env example"></pre>
+  </details>
+
   <section aria-label="Actions">
     <div class="row">
       <button type="button" id="btnSample">Load sample input</button>
+      <button type="button" id="btnLifefunCandidates">Load LifeFun candidates</button>
       <button type="button" id="btnRun" class="primary">Run forecast</button>
     </div>
   </section>
@@ -83,12 +123,34 @@
     const errEl = document.getElementById('errorLine')
     const statEl = document.getElementById('statusLine')
     const btnSample = document.getElementById('btnSample')
+    const btnLifefunCandidates = document.getElementById('btnLifefunCandidates')
     const btnRun = document.getElementById('btnRun')
+    const btnAutopilotEnv = document.getElementById('btnAutopilotEnv')
+    const autopilotEnvEl = document.getElementById('autopilotEnv')
 
     /** Clears status and error messages. */
     function clearMsgs() {
       errEl.textContent = ''
       statEl.textContent = ''
+    }
+
+    if (btnAutopilotEnv && autopilotEnvEl) {
+      btnAutopilotEnv.addEventListener('click', async () => {
+        clearMsgs()
+        autopilotEnvEl.textContent = ''
+        btnAutopilotEnv.disabled = true
+        try {
+          const res = await fetch('/autopilot-env-example')
+          if (!res.ok) throw new Error('Failed to load env template (HTTP ' + res.status + ')')
+          const text = await res.text()
+          autopilotEnvEl.textContent = text
+          statEl.textContent = 'Loaded autopilot.env.example'
+        } catch (e) {
+          errEl.textContent = String(e.message || e)
+        } finally {
+          btnAutopilotEnv.disabled = false
+        }
+      })
     }
 
     btnSample.addEventListener('click', async () => {
@@ -107,6 +169,25 @@
         btnSample.disabled = false
       }
     })
+
+    if (btnLifefunCandidates) {
+      btnLifefunCandidates.addEventListener('click', async () => {
+        clearMsgs()
+        btnLifefunCandidates.disabled = true
+        try {
+          const res = await fetch('/lifefun-candidates')
+          if (!res.ok) throw new Error('Failed to load lifefun candidates (HTTP ' + res.status + ')')
+          const data = await res.json()
+          inputEl.value = JSON.stringify(data, null, 2)
+          statEl.textContent = 'LifeFun candidates loaded.'
+        } catch (e) {
+          errEl.textContent = String(e.message || e)
+          outEl.textContent = ''
+        } finally {
+          btnLifefunCandidates.disabled = false
+        }
+      })
+    }
 
     btnRun.addEventListener('click', async () => {
       clearMsgs()

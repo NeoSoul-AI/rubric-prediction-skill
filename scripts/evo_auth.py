@@ -36,7 +36,7 @@ def load_wallets(cfg: Dict[str, Any]) -> List[Dict[str, Any]]:
     path = Path(cfg["wallets_file"]).expanduser()
     if not path.exists():
         raise FileNotFoundError(
-            f"Wallets file missing: {path}\nCopy evo_wallets.example.json to evo_wallets.json and add keys."
+            f"Wallets file missing: {path}\nCopy config/evo_wallets.example.json to config/evo_wallets.json and add the key."
         )
     with path.open("r", encoding="utf-8") as f:
         store = json.load(f)
@@ -125,7 +125,7 @@ def main() -> None:
     for w in wallets[:1]:
         sess = login_wallet(api_base, w)
         print(json.dumps({**sess, "token": sess["token"][:20] + "…"}, indent=2))
-    print("OK: auth flow works for first wallet (set wallets_file for all 10).", file=sys.stderr)
+    print("OK: auth flow works for the configured wallet.", file=sys.stderr)
 
 
 if __name__ == "__main__":

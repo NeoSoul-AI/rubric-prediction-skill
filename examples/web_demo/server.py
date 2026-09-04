@@ -25,6 +25,8 @@ from rubric_forecast.engine import run_forecast
 
 _WEB_DIR = Path(__file__).resolve().parent
 _SAMPLE_INPUT = _REPO_ROOT / "examples" / "polymarket_hormuz_geopolitics_input.json"
+_LIFEFUN_CANDIDATES = _REPO_ROOT / "examples" / "lifefun_candidates.json"
+_AUTOPILOT_ENV_EXAMPLE = _WEB_DIR / "autopilot.env.example"
 _HOST = "127.0.0.1"
 _PORT = 8765
 
@@ -75,6 +77,43 @@ class DemoHandler(BaseHTTPRequestHandler):
                 )
                 return
             _send_json(self, HTTPStatus.OK, payload)
+            return
+
+        if path == "/lifefun-candidates":
+            if not _LIFEFUN_CANDIDATES.is_file():
+                _send_json(
+                    self,
+                    HTTPStatus.NOT_FOUND,
+                    {"error": "lifefun candidates missing", "path": str(_LIFEFUN_CANDIDATES)},
+                )
+                return
+            try:
+                payload = json.loads(_LIFEFUN_CANDIDATES.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError) as exc:
+                _send_json(
+                    self,
+                    HTTPStatus.INTERNAL_SERVER_ERROR,
+                    {"error": "failed to read lifefun candidates", "detail": str(exc)},
+                )
+                return
+            _send_json(self, HTTPStatus.OK, payload)
+            return
+
+        if path == "/autopilot-env-example":
+            if not _AUTOPILOT_ENV_EXAMPLE.is_file():
+                self.send_error(HTTPStatus.NOT_FOUND, "autopilot.env.example missing")
+                return
+            try:
+                text = _AUTOPILOT_ENV_EXAMPLE.read_text(encoding="utf-8")
+            except OSError as exc:
+                self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
+                return
+            body = text.encode("utf-8")
+            self.send_response(HTTPStatus.OK)
+            self.send_header("Content-Type", "text/plain; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
             return
 
         self.send_error(HTTPStatus.NOT_FOUND, "Not found")

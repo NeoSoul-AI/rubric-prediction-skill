@@ -161,7 +161,6 @@ def run_pipeline_one_topic(
     topic_id: int,
     dry_run: bool,
     skip_submit: bool,
-    max_wallets: int,
     chain_id: int = 0,
 ) -> Dict[str, Any]:
     suffix = _artifact_suffix(chain_id)
@@ -201,8 +200,6 @@ def run_pipeline_one_topic(
             str(config_path),
             "--bundle",
             str(predict_path),
-            "--max-wallets",
-            str(max_wallets),
         ]
         if chain_id:
             submit_cmd.extend(["--chain-id", str(chain_id)])
@@ -225,7 +222,6 @@ def run_legacy_feed_flow(
     topic_id: int,
     dry_run: bool,
     skip_submit: bool,
-    max_wallets: int,
     chain_id: int = 0,
 ) -> Dict[str, Any]:
     suffix = _artifact_suffix(chain_id)
@@ -265,8 +261,6 @@ def run_legacy_feed_flow(
             str(config_path),
             "--bundle",
             str(predict_path),
-            "--max-wallets",
-            str(max_wallets),
         ]
         if chain_id:
             submit_cmd.extend(["--chain-id", str(chain_id)])
@@ -299,7 +293,6 @@ def main() -> None:
     )
     parser.add_argument("--dry-run", action="store_true", help="Submit step skips HTTP/hook")
     parser.add_argument("--skip-submit", action="store_true")
-    parser.add_argument("--max-wallets", type=int, default=10)
     parser.add_argument("--all-chains", action="store_true", help="Run serially across configured chains")
     parser.add_argument("--chain-id", type=int, default=0, help="Run only one specified chain")
     parser.add_argument(
@@ -340,7 +333,6 @@ def main() -> None:
                 args.topic_id,
                 args.dry_run,
                 args.skip_submit,
-                args.max_wallets,
                 cid,
             )
             summaries.append(brief)
@@ -352,7 +344,8 @@ def main() -> None:
         return
 
     mode = str(cfg.get("submit", {}).get("mode") or "artifact")
-    wallets = load_wallets(cfg)[: max(1, args.max_wallets)]
+    # One operator, one wallet: mirrors evo_submit.py, which only ever uses the first wallet.
+    wallets = load_wallets(cfg)[:1]
     wallet_addrs = [wallet_account(w).address for w in wallets]
 
     oc_path = openclaw_cursor_path(cfg)
@@ -399,7 +392,7 @@ def main() -> None:
             if mode == "openclaw" and openclaw_topic_complete_for_wallets(oc_cursor, pid, wallet_addrs):
                 summary["skipped_already_submitted"] += 1
                 print(
-                    f"[skip][chain {cid}] topic {tid} prediction_id={pid}: all wallets already in openclaw cursor",
+                    f"[skip][chain {cid}] topic {tid} prediction_id={pid}: wallet already in openclaw cursor",
                     file=sys.stderr,
                 )
                 continue
@@ -412,7 +405,6 @@ def main() -> None:
                     tid,
                     args.dry_run,
                     args.skip_submit,
-                    args.max_wallets,
                     cid,
                 )
                 chain_result_rows.append(brief)

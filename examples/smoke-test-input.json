@@ -5,21 +5,21 @@
   "rubric_dimensions": [
     {
       "key": "execution-readiness",
-      "label": "执行就绪度",
+      "label": "Execution readiness",
       "weight": 0.4,
-      "why_it_matters": "产品是否达到可发布状态。"
+      "why_it_matters": "Whether the product is near shippable quality."
     },
     {
       "key": "organizational-commitment",
-      "label": "组织承诺度",
+      "label": "Organizational commitment",
       "weight": 0.35,
-      "why_it_matters": "管理层是否持续推动上线。"
+      "why_it_matters": "Whether leadership is actively driving a launch."
     },
     {
       "key": "timeline-pressure",
-      "label": "时间窗口压力",
+      "label": "Timeline pressure",
       "weight": 0.25,
-      "why_it_matters": "截止时间越近，延期风险权重越高。"
+      "why_it_matters": "Closer deadlines increase the weight of slippage risk."
     }
   ],
   "evidence": [

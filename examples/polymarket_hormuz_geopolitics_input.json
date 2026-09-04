@@ -8,27 +8,27 @@
   "rubric_dimensions": [
     {
       "key": "market-conviction",
-      "label": "市场定价强度",
+      "label": "Market conviction",
       "weight": 0.28,
-      "why_it_matters": "高成交量下接近五五开的价格说明市场本身处于真实分歧状态，应被当作一条一阶信号。"
+      "why_it_matters": "High volume with prices near 50/50 reflects genuine market disagreement and should be treated as a first-order signal."
     },
     {
       "key": "recovery-momentum",
-      "label": "恢复动能",
+      "label": "Recovery momentum",
       "weight": 0.30,
-      "why_it_matters": "这道题是短窗口恢复题，近期船流是否持续回升，是判断能否在月底前恢复的核心。"
+      "why_it_matters": "This is a short-window recovery question; whether recent ship traffic keeps improving is central to normalization by month-end."
     },
     {
       "key": "deescalation-durability",
-      "label": "缓和持续性",
+      "label": "De-escalation durability",
       "weight": 0.22,
-      "why_it_matters": "若停火与谈判只能短暂维持，恢复趋势很容易再次中断。"
+      "why_it_matters": "If ceasefires and talks only hold briefly, the recovery trend can easily stall again."
     },
     {
       "key": "threshold-feasibility",
-      "label": "达标可行性",
+      "label": "Threshold feasibility",
       "weight": 0.20,
-      "why_it_matters": "这题不是判断是否改善，而是判断能否在指定日期前达到明确阈值，因此门槛可达性必须单独评估。"
+      "why_it_matters": "The question is not merely whether things improve but whether a clear threshold is met by the deadline, so reachability of the bar must be assessed on its own."
     }
   ],
   "evidence": [
