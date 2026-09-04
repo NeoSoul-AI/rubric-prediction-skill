@@ -111,7 +111,15 @@ Scripts under `scripts/` such as `evo_pipeline.py` and `evo_submit.py` read a JS
 cp config/evo_config.example.json config/evo_config.json
 ```
 
-Point `wallets_file` at your wallet JSON. Paths in the example are relative to the **repository root**; run those scripts from the repo root (or use absolute paths). The file `config/evo_config.json` is gitignored so machine-specific values are not committed.
+Point `wallets_file` at your wallet JSON. Copy the placeholder and fill in one wallet (the pipeline only ever submits from the first entry):
+
+```bash
+cp config/evo_wallets.example.json config/evo_wallets.json
+```
+
+Paths in the example are relative to the **repository root**; run those scripts from the repo root (or use absolute paths). Both `config/evo_config.json` and `config/evo_wallets.json` are gitignored so machine-specific values and keys are not committed.
+
+Web-search evidence enrichment uses [Tavily](https://tavily.com). Export `TAVILY_API_KEY` before running; without it the pipeline still runs, but skips the Tavily source and records `tavily key missing` in the ingest notes.
 
 ## Development
 

@@ -1,0 +1,8 @@
+{
+  "wallets": [
+    {
+      "label": "evo-main",
+      "private_key": "0x<64-hex-private-key-for-the-single-submitting-wallet>"
+    }
+  ]
+}
